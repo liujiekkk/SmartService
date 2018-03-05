@@ -7,6 +7,10 @@
  */
 namespace Server;
 
+use Config\Swoole;
+use Server\Event\EventVector;
+use Server\Event\Event;
+
 class ServerTcp extends Server {
     
     /**
@@ -25,23 +29,37 @@ class ServerTcp extends Server {
     }
     
     /**
-     * 执行当前 server
+     * 初始化默认监听事件
+     * {@inheritDoc}
+     * @see \Server\Server::initDefaultEvent()
      */
-    public function run() :bool
+    protected function initEvent() :EventVector
     {
-        // 链接接入响应
-        $this->server->on('connect', function ($serv, $fd){
-            echo "Client:Connect.\n";
-        });
-        // 接收客户端数据响应
-        $this->server->on('receive', function ($serv, $fd, $fromId, $data) {
-            $this->server->send($fd, 'Swoole: '. $data);
-            $this->server->close($fd);
-        });
-        // 链接关闭时响应
-        $this->server->on('close', function ($serv, $fd) {
-            echo "Client: Close.\n";
-        });
-        return parent::run();
+        $events = new EventVector();
+        $events->addEvent(new Event('connect', [$this, 'onConnect']));
+        $events->addEvent(new Event('receive', [$this, 'onReceive']));
+        $events->addEvent(new Event('close', [$this, 'onClose']));
+        return $events;
+    }
+    
+    /**
+     * 客户端连接相应函数
+     * @param \Swoole\Server $serv 服务端实例
+     * @param int $fd 连接文件描述符
+     */
+    public function onConnect($serv, $fd)
+    {
+        echo "Client:Connect.\n";
+    }
+    
+    public function onReceive($serv, $fd, $fromId, $data) 
+    {
+        $serv->send($fd, 'Swoole: '.$fd. $data);
+        $serv->close($fd);
+    }
+    
+    public function onClose($serv, $fd) 
+    {
+        echo "Client: Close.\n";
     }
 }

@@ -6,6 +6,8 @@
  * @time 下午3:43:13
  */
 namespace Server;
+use Server\Event\EventVector;
+use Server\Event\Event;
 class ServerHttp extends Server {
     
     /**
@@ -23,13 +25,19 @@ class ServerHttp extends Server {
     }
     
     /**
-     * 执行当前 server
+     * 初始化默认监听事件
+     * {@inheritDoc}
+     * @see \Server\Server::initDefaultEvent()
      */
-    public function run() :bool
+    protected function initEvent() :EventVector
     {
-        $this->server->on('request', function ($request, $response) {
-            $response->end("<h1>Hello Swoole. #".rand(1000, 9999)."</h1>");
-        });
-        return parent::run();
+        $events = new EventVector();
+        $events->addEvent(new Event('request', [$this, 'onRequest']));
+        return $events;
+    }
+    
+    public function onRequest($request, $response) 
+    {
+        $response->end("<h1>Hello Swoole. #".rand(1000, 9999)."</h1>");
     }
 }

@@ -7,6 +7,8 @@
  */
 namespace Server;
 
+use Server\Event\EventVector;
+
 abstract class Server {
     
     /**
@@ -15,6 +17,10 @@ abstract class Server {
      */
     protected static $instance;
     
+    /**
+     * 存储 Swoole\Server 对象实例
+     * @var Swoole\Server
+     */
     protected $server;
     
     /**
@@ -32,6 +38,22 @@ abstract class Server {
      * @param int $port
      */
     abstract public static function instance(string $host, int $port) :Server;
+    
+    /**
+     * 初始化默认事件
+     */
+    abstract protected function initEvent() :EventVector;
+    
+    /**
+     * 加载事件容器中的事件
+     * @param EventVector $events 事件容器
+     */
+    protected function loadEvent(EventVector $events) 
+    {
+        foreach ($events as $event) {
+            $this->server->on($event->getEventName(), $event->getCallback());
+        }
+    }
     
     /**
      * 设置
@@ -210,6 +232,9 @@ abstract class Server {
      */
     public function run() :bool
     {
+        // 加载服务端响应事件
+        $events = $this->initEvent();
+        $this->loadEvent($events);
         return $this->server->start();
     }
 }
