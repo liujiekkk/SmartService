@@ -21,7 +21,9 @@ class JsonRpc implements Parser
             's' => $call->getService(),
             'c' => $call->getClass(),
             'm' => $call->getMethod(),
-            'p' => $call->getParams()
+            'p' => $call->getParams(),
+            'cid' => $call->getClientId(),
+            'sn' => $call->getSn()
         ];
         return json_encode($tmp, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
@@ -48,7 +50,13 @@ class JsonRpc implements Parser
         if ( !isset($data['p']) ) {
             throw new \Exception('JsonRpc no params data.', 100000000);
         }
-        return new Call($data['s'], $data['c'], $data['m'], $data['p']);
+        if ( !isset($data['cid']) ) {
+            throw new \Exception('JsonRpc no cid data.', 100000000);
+        }
+        if ( !isset($data['sn']) ) {
+            throw new \Exception('JsonRpc no sn data.', 100000000);
+        }
+        return new Call($data['s'], $data['c'], $data['m'], $data['p'], $data['cid'], $data['sn']);
     }
 
 }
