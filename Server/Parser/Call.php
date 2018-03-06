@@ -146,7 +146,6 @@ class Call
             'cid' => $this->clientId,
         ];
         $sn = DataSign::generate($tmp, $secret);
-        echo $sn;
         return $sn == $this->sn ? true : false;
     }
 
