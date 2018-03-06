@@ -6,9 +6,13 @@
  * @time 下午5:16:21
  */
 namespace Client;
-class Client 
+use Server\Event\EventVector;
+use Request\Request;
+abstract class Client 
 {
     protected $client;
+    
+    protected $request;
     
     /**
      * 连接到远程服务器
@@ -21,6 +25,9 @@ class Client
      */
     public function connect(string $host, int $port, float $timeout = 0.5, int $flag = 0) :Client 
     {
+        // 初始化客户端时间
+        $events = $this->initEvent();
+        $this->loadEvent($events);
         $this->client->connect($host, $port, $timeout, $flag);
         return $this;
     }
@@ -77,9 +84,14 @@ class Client
      * @param string $data
      * @return int
      */
-    public function send(string $data) :int 
+    protected function send(string $data) :int 
     {
-        return $this->client->send($data);
+        try {
+            return $this->client->send($data);
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+        }
+        return 0;
     }
     
     /**
@@ -89,7 +101,7 @@ class Client
      * @param string $data 要发送的数据内容，不得超过64K
      * @return array
      */
-    public function sendto(string $ip, int $port, string $data) :array 
+    protected function sendto(string $ip, int $port, string $data) :array 
     {
         return $this->client->sendto($ip, $port, $data);
     }
@@ -100,7 +112,7 @@ class Client
      * @param int $offset
      * @param int $length
      */
-    public function sendfile(string $filename, int $offset = 0, int $length = 0) 
+    protected function sendfile(string $filename, int $offset = 0, int $length = 0) 
     {
         return $this->client->sendfile($filename, $offset, $length);
     }
@@ -110,7 +122,7 @@ class Client
      * @param int $size 接收数据的缓存区最大长度，此参数不要设置过大，否则会占用较大内存 
      * @param int $flags 特殊的SOCKET接收设置 swoole_client::MSG_PEEK | swoole_client::MSG_WAITALL
      */
-    public function recv(int $size = 65535, int $flags = 0) 
+    protected function recv(int $size = 65535, int $flags = 0) 
     {
         return $this->client->recv($size, $flags);
     }
@@ -123,4 +135,26 @@ class Client
     {
         return $this->client->close();
     }
+    
+    abstract protected function initEvent() :EventVector;
+    
+    /**
+     * 加载事件容器中的事件
+     * @param EventVector $events 事件容器
+     */
+    protected function loadEvent(EventVector $events)
+    {
+        foreach ($events as $event) {
+            $this->client->on($event->getEventName(), $event->getCallback());
+        }
+    }
+    
+    /**
+     * 设置请求对象
+     * @param Request $request
+     */
+    public function setRequest(Request $request) 
+    {
+        $this->request = $request;
+    } 
 }

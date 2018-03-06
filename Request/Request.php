@@ -8,19 +8,22 @@
 namespace Request;
 
 use Common\Singleton;
+use Server\Parser\Call;
+use Server\Parser\JsonRpc;
 
 class Request {
     
     use Singleton;
     
-    /**
-     * 设置返回数据
-     * @param array $data
-     * @return Request
-     */
-    public function setData(array $data) :Request 
+    protected $call;
+    
+    public function getData() :string 
     {
-        $this->data = $data;
-        return $this;
+        return JsonRpc::encode($this->call);
+    }
+    
+    public function setData(Call $call) 
+    {
+        $this->call = $call;
     }
 }

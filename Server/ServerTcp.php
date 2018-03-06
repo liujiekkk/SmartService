@@ -31,7 +31,7 @@ class ServerTcp extends Server {
     /**
      * 初始化默认监听事件
      * {@inheritDoc}
-     * @see \Server\Server::initDefaultEvent()
+     * @see \Server\Server::initEvent()
      */
     protected function initEvent() :EventVector
     {
@@ -49,13 +49,13 @@ class ServerTcp extends Server {
      */
     public function onConnect($serv, $fd)
     {
-        echo "Client:Connect.\n";
+        echo "Client:Connect. fd: {$fd}\n";
+        // @todo 校验是否有连接权限
     }
     
     public function onReceive($serv, $fd, $fromId, $data) 
     {
         $serv->send($fd, 'Swoole: '.$fd. $data);
-        $serv->close($fd);
     }
     
     public function onClose($serv, $fd) 
