@@ -64,4 +64,16 @@ class Main {
      */
     const DAEMONIZE = 0;
     
+    /**
+     * 数据签名秘钥
+     * @var string
+     */
+    const PROTOCOL_SIGN_SECRET = 'ABCDEFG';
+    
+    /**
+     * 协议数据解析器
+     * @var string
+     */
+    const PROTOCOL_DATA_PARSER = 'Server\Parser\JsonRpc';
+    
 }

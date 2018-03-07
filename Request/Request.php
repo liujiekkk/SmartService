@@ -9,7 +9,6 @@ namespace Request;
 
 use Common\Singleton;
 use Server\Parser\Call;
-use Server\Parser\JsonRpc;
 use Library\DataSign;
 use Config\Main;
 
@@ -44,7 +43,7 @@ class Request {
         ];
         $sn = DataSign::generate($tmp, Main::PROTOCOL_SIGN_SECRET);
         $tmp['sn'] = $sn;
-        $this->data = JsonRpc::encode($tmp);
+        $this->data = (Main::PROTOCOL_DATA_PARSER)::encode($tmp);
     }
     
     /**
@@ -54,7 +53,7 @@ class Request {
      */
     public static function str2Call(string $str) :Call 
     {
-            $arr = JsonRpc::decode($str);
+            $arr = (Main::PROTOCOL_DATA_PARSER)::decode($str);
             // 解析数据，判断签名
             $callSn = $arr['sn'];
             unset($arr['sn']);
