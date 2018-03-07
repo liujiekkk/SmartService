@@ -11,15 +11,20 @@ use Server\Event\Event;
 class ServerHttp extends Server {
     
     /**
-     * 实例化 http server
-     * @param string $host
-     * @param int $port
+     * 实例化 http server 对象
+     * @param string $host 主机地址
+     * @param int $port 端口号
+     * @param array $settings 额外配置项
+     * @return Server
      */
-    public static function instance(string $host, int $port) :Server
+    public static function instance(string $host, int $port, array $settings=[]) :Server
     {
         if ( !self::$instance ) {
             self::$instance = new static();
+            // 实例化 swoole server
             self::$instance->server = new \swoole_http_server($host, $port);
+            // 加载额外配置项
+            self::$instance->server->set($settings);
         }
         return self::$instance;
     }

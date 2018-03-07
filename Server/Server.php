@@ -34,10 +34,12 @@ abstract class Server {
     
     /**
      * 实例化 server 对象
-     * @param string $host
-     * @param int $port
+     * @param string $host 主机地址
+     * @param int $port 端口号
+     * @param array $settings 额外配置项
+     * @return Server
      */
-    abstract public static function instance(string $host, int $port) :Server;
+    abstract public static function instance(string $host, int $port, array $settings=[]) :Server;
     
     /**
      * 初始化默认事件

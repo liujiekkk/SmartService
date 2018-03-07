@@ -7,7 +7,7 @@
  */
 namespace Config;
 
-abstract class Main {
+class Main {
     
     /**
      * 参数用来指定监听的ip地址，如127.0.0.1，或者外网地址，或者0.0.0.0监听全部地址
@@ -21,5 +21,47 @@ abstract class Main {
      * @var int
      */
     const PORT = 9999;
+    
+    /**
+     * worker 数量
+     * @var int
+     */
+    const WORKER_NUM = 1;
+    
+    /**
+     * reactor 线程数量
+     * @var int
+     */
+    const REACTOR_NUM = 4;
+    
+    /**
+     * task worker 数量
+     * @var int
+     */
+    const TASK_WORKER_NUM = 0;
+    
+    /**
+     * listen backlog
+     * @var int
+     */
+    const BACKLOG = 128;
+    
+    /**
+     * 最大并发请求数量
+     * @var int
+     */
+    const MAX_REQUEST = 50;
+    
+    /**
+     * 分发模式
+     * @var int
+     */
+    const DISPACH_MODE = 1;
+    
+    /**
+     * 是否以守护进程方式运行
+     * @var int
+     */
+    const DAEMONIZE = 0;
     
 }

@@ -18,23 +18,15 @@ class ServerTcp extends Server {
      * 初始化 Server
      * @param string $host 指定监听的IP地址
      * @param int $port 监听端口号
+     * @param array $settings 额外配置项
      */
-    public static function instance(string $host, int $port) :Server
+    public static function instance(string $host, int $port, array $settings=[]) :Server
     {
         if ( !self::$instance ) {
             self::$instance = new static();
             // 多进程模式：SWOOLE_PROCESS 基础模式：SWOOLE_BASE
             self::$instance->server = new \swoole_server($host, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
-            self::$instance->server->set(array(
-                'reactor_num' => 4, //reactor thread num
-                'worker_num' => 1,    //worker process num
-                'task_worker_num' => 0, // task worker num
-                'backlog' => 128,   //listen backlog
-                'max_request' => 50,
-                'dispatch_mode' => 1,
-//                 'daemonize' => 1, // daemonize process
-            ));
-            
+            self::$instance->server->set($settings);
         }
         return self::$instance;
     }
@@ -64,6 +56,7 @@ class ServerTcp extends Server {
         // 设置 master 进程名称
         if ( !cli_set_process_title('Swoole master') ) {
             echo 'Can not set process title';
+            return;
         }
     }
     
@@ -75,6 +68,7 @@ class ServerTcp extends Server {
         // 设置 manager 进程名称
         if ( !cli_set_process_title('Swoole manager') ) {
             echo 'Can not set process title';
+            return;
         }
     }
     
@@ -86,6 +80,7 @@ class ServerTcp extends Server {
         // 设置 worker 进程名称
         if ( !cli_set_process_title('Swoole worker') ) {
             echo 'Can not set process title';
+            return;
         }
     }
     
@@ -96,19 +91,20 @@ class ServerTcp extends Server {
      */
     public function onConnect($serv, $fd)
     {
-//         echo "Hello Client {$fd} \n";
+        echo "Hello Client {$fd} \n";
     }
     
     public function onReceive($serv, $fd, $fromId, $data) 
     {
         $call = JsonRpc::decode($data);
         if (!$call->checkSn('')) {
-            echo 'No permission for client:'.$call->getClientId();
+            echo 'No permission for client:'.$call->getClientId()."\n";
             // 主动关闭客户端连接
             $serv->close($fd);
+            return;
         }
         // @todo 处理相关业务逻辑
-        
+        echo 'receive: '.$data."\n";
         // @todo 将处理结果返回给客户端
         $serv->send($fd, 'Swoole: '.$fd. $data);
     }
