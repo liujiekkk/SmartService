@@ -25,6 +25,16 @@ class ServerTcp extends Server {
             self::$instance = new static();
             // 多进程模式：SWOOLE_PROCESS 基础模式：SWOOLE_BASE
             self::$instance->server = new \swoole_server($host, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
+            self::$instance->server->set(array(
+                'reactor_num' => 4, //reactor thread num
+                'worker_num' => 1,    //worker process num
+                'task_worker_num' => 0, // task worker num
+                'backlog' => 128,   //listen backlog
+                'max_request' => 50,
+                'dispatch_mode' => 1,
+//                 'daemonize' => 1, // daemonize process
+            ));
+            
         }
         return self::$instance;
     }
@@ -37,10 +47,46 @@ class ServerTcp extends Server {
     protected function initEvent() :EventVector
     {
         $events = new EventVector();
+        $events->addEvent(new Event('Start', [$this, 'onStart']));
+        $events->addEvent(new Event('ManagerStart', [$this, 'onManagerStart']));
+        $events->addEvent(new Event('WorkerStart', [$this, 'onWorkerStart']));
         $events->addEvent(new Event('connect', [$this, 'onConnect']));
         $events->addEvent(new Event('receive', [$this, 'onReceive']));
         $events->addEvent(new Event('close', [$this, 'onClose']));
         return $events;
+    }
+    
+    /**
+     * 主进程启动调用
+     */
+    public function onStart() 
+    {
+        // 设置 master 进程名称
+        if ( !cli_set_process_title('Swoole master') ) {
+            echo 'Can not set process title';
+        }
+    }
+    
+    /**
+     * manager 进程启动调用
+     */
+    public function onManagerStart()
+    {
+        // 设置 manager 进程名称
+        if ( !cli_set_process_title('Swoole manager') ) {
+            echo 'Can not set process title';
+        }
+    }
+    
+    /**
+     * worker 启动调用
+     */
+    public function onWorkerStart($serv, $workerId)
+    {
+        // 设置 worker 进程名称
+        if ( !cli_set_process_title('Swoole worker') ) {
+            echo 'Can not set process title';
+        }
     }
     
     /**
