@@ -8,8 +8,17 @@
 namespace Server\Parser;
 interface Parser
 {
+    /**
+     * 将原始数据转成协议数据
+     * @param array $data
+     * @return string
+     */
+    public static function encode(array $data) :string;
     
-    public static function encode(Call $call) :string;
-    
-    public static function decode(string $str) :Call;
+    /**
+     * 将协议数据转换回原始数据
+     * @param string $str
+     * @return array
+     */
+    public static function decode(string $str) :array;
 }

@@ -7,8 +7,6 @@
  */
 namespace Server\Parser;
 
-use Library\DataSign;
-
 class Call
 {
     protected $service;
@@ -18,10 +16,6 @@ class Call
     protected $method;
     
     protected $params;
-    
-    protected $clientId;
-    
-    protected $sn;
     
     /**
      * 获取服务名称
@@ -60,24 +54,6 @@ class Call
     }
     
     /**
-     * 获取客户端的认证ID
-     * @return string
-     */
-    public function getClientId() :string 
-    {
-        return $this->clientId;
-    }
-    
-    /**
-     * 获取数据签名
-     * @return string
-     */
-    public function getSn() :string 
-    {
-        return $this->sn;
-    }
-
-    /**
      * 设置服务名称
      * @param string $service
      */
@@ -114,56 +90,35 @@ class Call
     }
     
     /**
-     * 设置客户端 ID（此 ID 主要作为签名认证）
-     * @param string $clientId
-     */
-    public function setClientId(string $clientId) 
-    {
-        $this->clientId = $clientId;
-    }
-    
-    /**
-     * 设置签名值
-     * @param string $sn
-     */
-    public function setSn(string $sn) 
-    {
-        $this->sn = $sn;
-    }
-    
-    /**
-     * 校验数据签名
-     * @param string $secret 签名秘钥
-     * @return bool
-     */
-    public function checkSn(string $secret) :bool 
-    {
-        $tmp = [
-            's' => $this->service,
-            'c' => $this->class,
-            'm' => $this->method,
-            'p' => $this->params,
-            'cid' => $this->clientId,
-        ];
-        $sn = DataSign::generate($tmp, $secret);
-        return $sn == $this->sn ? true : false;
-    }
-
-    /**
      * 调用结构构造函数
      * @param string $service 服务名称
      * @param string $class 类名称
      * @param string $method 方法名称
      * @param array $params 参数数组
      */
-    public function __construct(string $service, string $class, string $method, array $params, string $clientId,string $sn) 
+    public function __construct(string $service, string $class, string $method, array $params) 
     {
         $this->service = $service;
         $this->class = $class;
         $this->method = $method;
         $this->params = $params;
-        $this->clientId = $clientId;
-        $this->sn = $sn;
+    }
+    
+    /**
+     * 将 call 转换成字符串
+     * @return string
+     */
+    public function toString() :string 
+    {
+        return json_encode(
+            [
+                $this->service, 
+                $this->class, 
+                $this->method, 
+                $this->params
+            ], 
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        );
     }
 }
 

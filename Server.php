@@ -23,4 +23,4 @@ $settings = [
 ];
 // 实例化服务，并且运行
 ServerTcp::instance(Config\Main::HOST, Config\Main::PORT, $settings)->run();
-// ServerHttp::instance(Config\Main::HOST, Config\Main::PORT)->run();
+// ServerHttp::instance(Config\Main::HOST, Config\Main::PORT, $settings)->run();

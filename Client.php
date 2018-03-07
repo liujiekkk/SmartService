@@ -11,10 +11,10 @@ use Server\Parser\Call;
 include_once 'Autoload.php';
 Autoload::instance()->setIncludePath(__DIR__)->init();
 
-$call = new Call('service', 'class_', 'method_', ['a'=>1, 'b'=>2], 'client1', '148eb2b953fcfb048791637d9b61852d');
+$call = new Call('service', 'class_', 'method_', ['a'=>1, 'b'=>2]);
 // 实例化服务，并且运行
 $client = (new \Client\ClientTcp());
 $request = Request\Request::instance();
-$request->setData($call);
+$request->setData($call, 'client1');
 $client->setRequest($request);
 $client->connect(Config\Main::HOST, Config\Main::PORT);

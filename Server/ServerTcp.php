@@ -7,10 +7,9 @@
  */
 namespace Server;
 
-use Config\Swoole;
 use Server\Event\EventVector;
 use Server\Event\Event;
-use Server\Parser\JsonRpc;
+use Request\Request;
 
 class ServerTcp extends Server {
     
@@ -86,29 +85,35 @@ class ServerTcp extends Server {
     
     /**
      * 客户端连接相应函数
-     * @param \Swoole\Server $serv 服务端实例
-     * @param int $fd 连接文件描述符
      */
     public function onConnect($serv, $fd)
     {
         echo "Hello Client {$fd} \n";
     }
     
+    /**
+     * 收到客户端数据响应函数
+     */
     public function onReceive($serv, $fd, $fromId, $data) 
     {
-        $call = JsonRpc::decode($data);
-        if (!$call->checkSn('')) {
-            echo 'No permission for client:'.$call->getClientId()."\n";
-            // 主动关闭客户端连接
+        // 解析请求数据数据
+        try {
+            $call = Request::str2Call($data);
+        } catch (\Exception $e) {
+            // 关闭客户端
             $serv->close($fd);
+            echo $e->getMessage();
             return;
         }
         // @todo 处理相关业务逻辑
-        echo 'receive: '.$data."\n";
+        echo 'receive: '.$call->toString()."\n";
         // @todo 将处理结果返回给客户端
-        $serv->send($fd, 'Swoole: '.$fd. $data);
+        $serv->send($fd, 'Swoole: '.$fd. $call->toString());
     }
     
+    /**
+     * 关闭客户端连接响应函数
+     */
     public function onClose($serv, $fd) 
     {
         echo "Client: Close.\n";

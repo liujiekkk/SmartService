@@ -38,7 +38,7 @@ class ClientTcp extends Client
     public function onConnect($client, $data='') 
     {
         // 链接成功以后发送请求数据
-        $client->send($this->request->getData());
+        $client->send($this->request->toString());
     }
     
     public function onReceive($client, string $data='') 
