@@ -7,7 +7,7 @@
  */
 namespace Request;
 
-use Common\Singleton;
+use Library\Singleton;
 use Server\Parser\Call;
 use Library\DataSign;
 use Config\Main;

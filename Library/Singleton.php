@@ -5,7 +5,7 @@
  * @date 2017年8月9日
  * @time 下午2:12:41
  */
-namespace Common;
+namespace Library;
 
 trait Singleton {
     
