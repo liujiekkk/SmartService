@@ -10,25 +10,67 @@ use Server\Event\EventVector;
 use Request\Request;
 abstract class Client 
 {
+    /**
+     * 客户端对象实例
+     * @var Client
+     */
     protected $client;
     
+    /**
+     * 请求对象实例
+     * @var Request
+     */
     protected $request;
     
     /**
+     * 存储单例对象
+     * @var Client
+     */
+    protected static $instance;
+    
+    /**
+     * 服务端地址
+     * @var string
+     */
+    protected static $host;
+    
+    /**
+     * 服务端端口
+     * @var int
+     */
+    protected static $port;
+    
+    /**
+     * 构造函数私有化
+     */
+    protected function __construct() {}
+    /**
+     * 克隆私有化
+     */
+    protected function __clone() {}
+    
+    /**
+     * 初始化 Client
+     * @param string $host 指定监听的IP地址
+     * @param int $port 监听端口号
+     * @param $is_sync 是否是同步客户端
+     * @param $key 客户端唯一标识
+     */
+    abstract static function instance(string $host, int $port, int $is_sync=SWOOLE_SOCK_ASYNC, string $key='') :Client;
+    
+    /**
      * 连接到远程服务器
-     * @param string $host 远程服务器ip地址
-     * @param int $port 远程服务器端口号
      * @param float $timeout 是网络IO的超时,包括connect/send/recv，单位是s，支持浮点数。默认为0.5s，即500ms
      * @param int $flag 参数在TCP类型,$flag=1表示设置为非阻塞socket，connect会立即返回。
      * 如果将$flag设置为1，那么在send/recv前必须使用swoole_client_select来检测是否完成了连接
      * @return bool
      */
-    public function connect(string $host, int $port, float $timeout = 0.5, int $flag = 0) :Client 
+    public function connect(float $timeout = 0.5, int $flag = 0) :Client 
     {
         // 初始化客户端时间
         $events = $this->initEvent();
         $this->loadEvent($events);
-        $this->client->connect($host, $port, $timeout, $flag);
+        $this->client->connect(self::$host, self::$port, $timeout, $flag);
         return $this;
     }
     

@@ -13,16 +13,29 @@ use Library\Shell;
 
 class ClientTcp extends Client 
 {
+    /**
+     * 命令行对象
+     * @var Shell
+     */
     protected $shell;
     
     /**
-     * 实例化客户端
-     * @param int $is_sync SWOOLE_SOCK_ASYNC 或者 SWOOLE_SOCK_SYNC
-     * @param string $key 客户端唯一标识
+     * 初始化 Client
+     * @param string $host 指定监听的IP地址
+     * @param int $port 监听端口号
+     * @param $is_sync 是否是同步客户端
+     * @param $key 客户端唯一标识
      */
-    public function __construct(int $is_sync = SWOOLE_SOCK_ASYNC, string $key='') {
-        $this->client = new \swoole_client(SWOOLE_TCP, $is_sync, $key);
-        $this->shell = new Shell();
+    public static function instance(string $host, int $port, int $is_sync=SWOOLE_SOCK_ASYNC, string $key='') :Client
+    {
+        if ( !self::$instance ) {
+            self::$host = $host;
+            self::$port = $port;
+            self::$instance = new static();
+            self::$instance->shell = new Shell();
+            self::$instance->client = new \swoole_client(SWOOLE_TCP, $is_sync, $key);
+        }
+        return self::$instance;
     }
     
     public function initEvent() :EventVector
@@ -42,7 +55,7 @@ class ClientTcp extends Client
      */
     public function onConnect($client, $data='') 
     {
-        echo "Connect success.\n";
+        $this->log('Connect success.');
         // 链接成功以后发送请求数据
         $client->send($this->request->toString());
     }
@@ -51,20 +64,29 @@ class ClientTcp extends Client
     {
         if (!empty($data)) {
             $text = $this->shell->colorFont('received:'. $data, Shell::COLOR_GREEN);
-             $this->shell->println($text);
+            $this->log($text);
             $client->close();
             return;
         }
-        echo "no response.\n";
+        $this->log('no response.');
     }
     
     public function onClose($client) 
     {
-        echo "client close\n";
+        $this->log('client close');
     }
     
     public function onError($client) 
     {
         exit("error\n");
+    }
+    
+    /**
+     * 日志记录函数，debug 模式下为输出
+     * @param string $text 记录内容
+     */
+    protected function log(string $text) 
+    {
+        $this->shell->println($text);
     }
 }
