@@ -107,6 +107,16 @@ class ServerTcp extends Server {
         }
         // @todo 处理相关业务逻辑
         echo 'receive: '.$call->toString()."\n";
+        $class = "\\". $call->getClass();
+        $method = $call->getMethod();
+        $params = $call->getParams();
+        try {
+            $obj = new $class;
+            $result = call_user_func_array([$obj, $method], $params);
+            echo $result."\n";
+        } catch (\Throwable $t) {
+            echo $t->getMessage()."\n";
+        }
         // @todo 将处理结果返回给客户端
         $serv->send($fd, 'Swoole: '.$fd. $call->toString());
     }

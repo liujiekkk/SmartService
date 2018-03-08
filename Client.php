@@ -11,7 +11,7 @@ use Server\Parser\Call;
 include_once 'Autoload.php';
 Autoload::instance()->setIncludePath(__DIR__)->init();
 
-$call = new Call('service', 'class_', 'method_', ['a'=>1, 'b'=>2]);
+$call = new Call('service', 'Test', 't', ['b'=>2]);
 // 实例化服务，并且运行
 $client = \Client\ClientTcp::instance(Config\Main::HOST, Config\Main::PORT);
 $request = Request\Request::instance();
