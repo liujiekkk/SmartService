@@ -41,9 +41,9 @@ class ServerTcp extends Server {
         $events->addEvent(new Event('Start', [$this, 'onStart']));
         $events->addEvent(new Event('ManagerStart', [$this, 'onManagerStart']));
         $events->addEvent(new Event('WorkerStart', [$this, 'onWorkerStart']));
-        $events->addEvent(new Event('connect', [$this, 'onConnect']));
-        $events->addEvent(new Event('receive', [$this, 'onReceive']));
-        $events->addEvent(new Event('close', [$this, 'onClose']));
+        $events->addEvent(new Event('Connect', [$this, 'onConnect']));
+        $events->addEvent(new Event('Receive', [$this, 'onReceive']));
+        $events->addEvent(new Event('Close', [$this, 'onClose']));
         return $events;
     }
     
