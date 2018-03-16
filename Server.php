@@ -1,6 +1,6 @@
 <?php
-use Server\ServerTcp;
-use Server\ServerHttp;
+use Common\Server\ServerTcp;
+use Comomon\Server\ServerHttp;
 use Config\Main;
 
 /**

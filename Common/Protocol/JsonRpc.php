@@ -5,34 +5,37 @@
  * @date 2018年3月6日
  * @time 下午2:13:15
  */
-namespace Server\Parser;
-use Server\Parser\Call;
-
-class JsonRpc implements Parser
+namespace Common\Protocol;
+use Common\Action\RpcCall;
+use Common\Action\Action;
+class JsonRpc extends Protocol
 {
     
     /**
      * {@inheritDoc}
-     * @see \Server\Parser\Parser::encode($call)
+     * @see \Common\Protocol\Protocol::encode()
      */
-    public static function encode(array $data): string
+    public function encode(): string
     {
-        $tmp = [
+        $method = $this->action->getService().'_'.$this->action->getClass().'_'.$this->action->getMethod();
+        $data = [
             'jsonrpc' => '2.0',
-            'method' => $data['s'].'_'.$data['c'].'_'.$data['m'],
-            'params' => $data,
-            'id' => $data['u'],
+            'method' => $method,
+            'params' => $this->action->encode(),
+            'id' => $method
         ];
-        return json_encode($tmp, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return SerilizeUtil::serilize($data);
     }
-
+    
     /**
-     * {@inheritDoc}
-     * @see \Server\Parser\Parser::decode($str)
+     * 反解析数据到协议对象
+     * @param string $str
+     * @throws \Exception
+     * @return Protocol
      */
-    public static function decode(string $str): array
+    public static function decode(string $str): Protocol 
     {
-        $data = json_decode($str, true);
+        $data = SerilizeUtil::unserilize($str);
         if ( json_last_error() ) {
             throw new \Exception('JsonRpc Parser error.', 100000000);
         }
@@ -48,6 +51,6 @@ class JsonRpc implements Parser
         if ( !isset($data['id']) ) {
             throw new \Exception('JsonRpc no id.', 100000000);
         }
-        return $data['params'];
+        return new self(RpcCall::decode($data['params']));
     }
 }

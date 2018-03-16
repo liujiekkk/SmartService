@@ -5,9 +5,9 @@
  * @date 2018年2月24日
  * @time 下午5:16:21
  */
-namespace Client;
-use Server\Event\EventVector;
-use Request\Request;
+namespace Common\Client;
+use Common\Server\Event\EventVector;
+use Common\Request\AbstractRequest;
 abstract class Client 
 {
     /**
@@ -18,7 +18,7 @@ abstract class Client
     
     /**
      * 请求对象实例
-     * @var Request
+     * @var AbstractRequest
      */
     protected $request;
     
@@ -195,7 +195,7 @@ abstract class Client
      * 设置请求对象
      * @param Request $request
      */
-    public function setRequest(Request $request) 
+    public function setRequest(AbstractRequest $request) 
     {
         $this->request = $request;
     } 

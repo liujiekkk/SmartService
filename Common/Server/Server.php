@@ -5,9 +5,9 @@
  * @date 2018年2月13日
  * @time 下午3:16:35
  */
-namespace Server;
+namespace Common\Server;
 
-use Server\Event\EventVector;
+use Common\Server\Event\EventVector;
 
 abstract class Server {
     

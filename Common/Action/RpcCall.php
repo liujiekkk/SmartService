@@ -5,9 +5,9 @@
  * @date 2018年3月6日
  * @time 下午2:22:05
  */
-namespace Server\Parser;
+namespace Common\Action;
 
-class Call
+class RpcCall implements Action
 {
     protected $service;
     
@@ -16,6 +16,12 @@ class Call
     protected $method;
     
     protected $params;
+    
+    /**
+     * 返回结果
+     * @var mixed
+     */
+    protected $return;
     
     /**
      * 获取服务名称
@@ -108,17 +114,61 @@ class Call
      * 将 call 转换成字符串
      * @return string
      */
-    public function toString() :string 
+    public function encode() :string 
     {
         return json_encode(
             [
-                $this->service, 
-                $this->class, 
-                $this->method, 
-                $this->params
+                'service' => $this->service, 
+                'class' => $this->class, 
+                'method' => $this->method, 
+                'params' => $this->params
             ], 
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
         );
+    }
+    
+    /**
+     * 字符串转换成对象
+     * @param string $str 字符串
+     * @return Action
+     */
+    public static function decode(string $str): Action 
+    {
+        $data = json_decode($str, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ( json_last_error() ) {
+            throw new \Exception('RpcCall Action decode error:'.$str);
+        }
+        return new self(
+            $data['service'], 
+            $data['class'], 
+            $data['method'], 
+            $data['params']
+        );
+    } 
+    
+    /**
+     * {@inheritDoc}
+     * @see \Common\Action\Action::execute()
+     */
+    public function execute()
+    {
+        try {
+            $obj = new $this->class();
+            $this->return = call_user_func_array([$obj, $this->method], $this->params);
+            return true;
+        } catch (\Throwable $t) {
+            echo $t->getMessage()."\n";
+            return false;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see \Common\Action\Action::getReturn()
+     */
+    public function getReturn()
+    {
+        return $this->return;
     }
 }
 

@@ -5,9 +5,9 @@
  * @date 2018年2月13日
  * @time 下午3:43:13
  */
-namespace Server;
-use Server\Event\EventVector;
-use Server\Event\Event;
+namespace Common\Server;
+use Common\Server\Event\EventVector;
+use Common\Server\Event\Event;
 class ServerHttp extends Server {
     
     /**

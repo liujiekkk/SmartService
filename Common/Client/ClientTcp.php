@@ -5,11 +5,12 @@
  * @date 2018年2月24日
  * @time 下午5:18:44
  */
-namespace Client;
-use Server\Event\EventVector;
-use Server\Event\Event;
-use Request\Request;
+namespace Common\Client;
+use Common\Server\Event\EventVector;
+use Common\Server\Event\Event;
+use Common\Request\Request;
 use Library\Shell;
+use Common\IO\StringBuffer;
 
 class ClientTcp extends Client 
 {
@@ -57,7 +58,10 @@ class ClientTcp extends Client
     {
         $this->log('Connect success.');
         // 链接成功以后发送请求数据
-        $client->send($this->request->toString());
+        $buffer = new StringBuffer();
+        // 写入buffer
+        $this->request->writeBuffer($buffer);
+        $client->send($buffer->read());
     }
     
     public function onReceive($client, string $data='') 

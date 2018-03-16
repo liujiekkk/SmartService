@@ -1,5 +1,6 @@
 <?php
-use Server\Parser\Call;
+use Common\Action\RpcCall;
+use Common\Protocol\JsonRpc;
 
 /**
  * 客户端启动入口
@@ -11,10 +12,10 @@ use Server\Parser\Call;
 include_once 'Autoload.php';
 Autoload::instance()->setIncludePath(__DIR__)->init();
 
-$call = new Call('service', 'Test', 't', ['b'=>2]);
+$call = new RpcCall('service', 'Test', 't', ['b'=>2]);
+$jsonRpc = new JsonRpc($call);
+$request = new \Common\Request\RpcRequest(['head'], $jsonRpc);
 // 实例化服务，并且运行
-$client = \Client\ClientTcp::instance(Config\Main::HOST, Config\Main::PORT);
-$request = Request\Request::instance();
-$request->setData($call, 'client1');
+$client = \Common\Client\ClientTcp::instance(Config\Main::HOST, Config\Main::PORT);
 $client->setRequest($request);
 $client->connect();

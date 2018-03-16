@@ -5,11 +5,14 @@
  * @date 2018年2月13日
  * @time 下午4:11:42
  */
-namespace Server;
+namespace Common\Server;
 
-use Server\Event\EventVector;
-use Server\Event\Event;
-use Request\Request;
+use Common\Server\Event\EventVector;
+use Common\Server\Event\Event;
+use Common\Request\RpcRequest;
+use Common\IO\StringBuffer;
+use Common\Protocol\SerilizeUtil;
+use Common\Protocol\JsonRpc;
 
 class ServerTcp extends Server {
     
@@ -96,29 +99,19 @@ class ServerTcp extends Server {
      */
     public function onReceive($serv, $fd, $fromId, $data) 
     {
-        // 解析请求数据数据
-        try {
-            $call = Request::str2Call($data);
-        } catch (\Exception $e) {
-            // 关闭客户端
-            $serv->close($fd);
-            echo $e->getMessage();
-            return;
-        }
+        $buffer = new StringBuffer();
+        $buffer->writeTo($data);
+        $request = RpcRequest::readBuffer($buffer);
+        $rpcCall = $request->getProtocol()->getAction();
+        // 执行调用
+        $rpcCall->execute();
+        // 获取执行结果
+        $result = $rpcCall->getReturn();
         // @todo 处理相关业务逻辑
-        echo 'receive: '.$call->toString()."\n";
-        $class = "\\". $call->getClass();
-        $method = $call->getMethod();
-        $params = $call->getParams();
-        try {
-            $obj = new $class;
-            $result = call_user_func_array([$obj, $method], $params);
-            echo $result."\n";
-        } catch (\Throwable $t) {
-            echo $t->getMessage()."\n";
-        }
+        echo 'receive: '.$rpcCall->encode()."\n";
+        
         // @todo 将处理结果返回给客户端
-        $serv->send($fd, 'Swoole: '.$fd. $call->toString());
+        $serv->send($fd, 'Swoole: fd->'.$fd.' execute: '. $rpcCall->getReturn());
     }
     
     /**
