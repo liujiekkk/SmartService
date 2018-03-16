@@ -16,7 +16,7 @@ class RpcRequest extends AbstractRequest
         $buffer->writeTo($this->toString());
     }
     
-    public static function readBuffer(AbstractBuffer $buffer): AbstractRequest
+    public function readBuffer(AbstractBuffer $buffer)
     {
         $str = $buffer->read();
         $data = json_decode($str, true);
@@ -24,10 +24,11 @@ class RpcRequest extends AbstractRequest
             throw new \Exception('RpcRequest read error.', 100000001);
         }
         // 解析请求头
-        $requestHeaders = $data['headers'];
+        $this->headers = $data['headers'];
         // 解析协议数据
-        $jsonRpc = JsonRpc::decode($data['protocol']);
-        return new self($data['headers'], $jsonRpc);
+        $jsonRpc = JsonRpc::instance();
+        $jsonRpc->decode($data['protocol']);
+        $this->protocol =$jsonRpc;
     }
     
     protected function toString(): string

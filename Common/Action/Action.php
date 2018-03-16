@@ -7,24 +7,28 @@
  */
 namespace Common\Action;
 
-interface Action
+use Library\Singleton;
+
+abstract class Action
 {
+    use Singleton;
+    
     /**
      * 操作接口
      */
-    public function execute();
+    abstract public function execute();
     
     /**
      * 获取操作结果
      */
-    public function getReturn();
+    abstract public function getReturn();
     
     /**
      * 将当前对象转换成字符串
      * @return string
      */
-    public function encode(): string;
+    abstract public function encode(): string;
     
-    public static function decode(string $str): Action;
+    abstract public function decode(string $str);
 }
 

@@ -101,7 +101,8 @@ class ServerTcp extends Server {
     {
         $buffer = new StringBuffer();
         $buffer->writeTo($data);
-        $request = RpcRequest::readBuffer($buffer);
+        $request = RpcRequest::instance();
+        $request->readBuffer($buffer);
         $rpcCall = $request->getProtocol()->getAction();
         // 执行调用
         $rpcCall->execute();

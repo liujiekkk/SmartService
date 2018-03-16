@@ -8,13 +8,15 @@
 namespace Common\Protocol;
 
 use Common\Action\Action;
+use Library\Singleton;
 
 abstract class Protocol
 {
+    use Singleton;
     
     protected  $action;
     
-    public function __construct(Action $action) 
+    public function setAction(Action $action) 
     {
         $this->action = $action;
     }
@@ -26,6 +28,6 @@ abstract class Protocol
     
     abstract public function encode(): string; 
     
-    abstract public static function decode(string $str): Protocol;
+    abstract public function decode(string $str);
 }
 

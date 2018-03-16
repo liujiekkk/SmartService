@@ -9,9 +9,12 @@ namespace Common\Request;
 
 use Common\Protocol\Protocol;
 use Common\IO\AbstractBuffer;
+use Library\Singleton;
 
 abstract class AbstractRequest extends AbstractRequestResponse
 {
+    use Singleton;
+    
     /**
      * 请求体 
      * @var Protocol
@@ -24,10 +27,14 @@ abstract class AbstractRequest extends AbstractRequestResponse
      */
     protected $headers;
     
-    public function __construct(array $headers, Protocol $protocol) 
+    public function setHeaders(array $headers) 
+    {
+        $this->headers = $headers;
+    }
+    
+    public function setProtocol(Protocol $protocol) 
     {
         $this->protocol = $protocol;
-        $this->headers = $headers;
     }
     
     public function getHeaders() :array 
@@ -42,7 +49,7 @@ abstract class AbstractRequest extends AbstractRequestResponse
     
     abstract public function writeBuffer(AbstractBuffer $buffer); 
     
-    abstract public static function readBuffer(AbstractBuffer $buffer): AbstractRequest;
+    abstract public function readBuffer(AbstractBuffer $buffer);
     
     abstract protected function toString(): string;
 }

@@ -8,6 +8,7 @@
 namespace Common\Protocol;
 use Common\Action\RpcCall;
 use Common\Action\Action;
+
 class JsonRpc extends Protocol
 {
     
@@ -33,7 +34,7 @@ class JsonRpc extends Protocol
      * @throws \Exception
      * @return Protocol
      */
-    public static function decode(string $str): Protocol 
+    public function decode(string $str)
     {
         $data = SerilizeUtil::unserilize($str);
         if ( json_last_error() ) {
@@ -51,6 +52,8 @@ class JsonRpc extends Protocol
         if ( !isset($data['id']) ) {
             throw new \Exception('JsonRpc no id.', 100000000);
         }
-        return new self(RpcCall::decode($data['params']));
+        $rpcCall = RpcCall::instance();
+        $rpcCall->decode($data['params']);
+        $this->action = $rpcCall;
     }
 }

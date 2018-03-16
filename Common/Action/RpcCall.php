@@ -7,7 +7,12 @@
  */
 namespace Common\Action;
 
-class RpcCall implements Action
+/**
+ * 
+ * @author liujie
+ * @method setService
+ */
+class RpcCall extends Action
 {
     protected $service;
     
@@ -96,21 +101,6 @@ class RpcCall implements Action
     }
     
     /**
-     * 调用结构构造函数
-     * @param string $service 服务名称
-     * @param string $class 类名称
-     * @param string $method 方法名称
-     * @param array $params 参数数组
-     */
-    public function __construct(string $service, string $class, string $method, array $params) 
-    {
-        $this->service = $service;
-        $this->class = $class;
-        $this->method = $method;
-        $this->params = $params;
-    }
-    
-    /**
      * 将 call 转换成字符串
      * @return string
      */
@@ -132,18 +122,16 @@ class RpcCall implements Action
      * @param string $str 字符串
      * @return Action
      */
-    public static function decode(string $str): Action 
+    public function decode(string $str) 
     {
         $data = json_decode($str, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         if ( json_last_error() ) {
             throw new \Exception('RpcCall Action decode error:'.$str);
         }
-        return new self(
-            $data['service'], 
-            $data['class'], 
-            $data['method'], 
-            $data['params']
-        );
+        $this->service = $data['service'];
+        $this->class = $data['class'];
+        $this->method = $data['method'];
+        $this->params = $data['params'];
     } 
     
     /**
