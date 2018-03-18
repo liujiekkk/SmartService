@@ -107,7 +107,6 @@ class ServerTcp extends Server {
         $params = $protocol->getParams();
         $result = [];
         try {
-            echo '\\Common\\Server\\Action\\'.$method."Action\n";
             $class = ('\\Common\\Server\\Action\\'.$method.'Action')::instance();
             $result = $class->execute($this, $params);
         } catch (\Throwable $t) {
