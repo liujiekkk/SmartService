@@ -29,18 +29,6 @@ abstract class Client
     protected static $instance;
     
     /**
-     * 服务端地址
-     * @var string
-     */
-    protected static $host;
-    
-    /**
-     * 服务端端口
-     * @var int
-     */
-    protected static $port;
-    
-    /**
      * 构造函数私有化
      */
     protected function __construct() {}
@@ -51,12 +39,10 @@ abstract class Client
     
     /**
      * 初始化 Client
-     * @param string $host 指定监听的IP地址
-     * @param int $port 监听端口号
      * @param $is_sync 是否是同步客户端
      * @param $key 客户端唯一标识
      */
-    abstract static function instance(string $host, int $port, int $is_sync=SWOOLE_SOCK_ASYNC, string $key='') :Client;
+    abstract static function instance(int $is_sync=SWOOLE_SOCK_ASYNC, string $key='') :Client;
     
     /**
      * 连接到远程服务器
@@ -65,13 +51,15 @@ abstract class Client
      * 如果将$flag设置为1，那么在send/recv前必须使用swoole_client_select来检测是否完成了连接
      * @return bool
      */
-    public function connect(float $timeout = 0.5, int $flag = 0) :Client 
+    public function connect(float $timeout = 0.5, int $flag = 0) :bool 
     {
-        // 初始化客户端时间
+        $headers = $this->request->getHeaders();
+        $host = $headers['host'];
+        $port = $headers['port'];
+        // 初始化客户端事件
         $events = $this->initEvent();
         $this->loadEvent($events);
-        $this->client->connect(self::$host, self::$port, $timeout, $flag);
-        return $this;
+        return $this->client->connect($host, $port, $timeout, $flag);
     }
     
     /**

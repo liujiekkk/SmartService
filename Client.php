@@ -9,20 +9,19 @@
 
 include_once 'Autoload.php';
 Autoload::instance()->setIncludePath(__DIR__)->init();
-// 调用
-$call = \Common\Action\RpcCall::instance();
-$call->setService('service');
-$call->setClass('Test');
-$call->setMethod('t');
-$call->setParams(['b'=>'这是我的执行结果']);
+
+// 实例化服务
+$client = \Common\Client\ClientTcp::instance();
+
 // 协议
 $protocol = \Common\Protocol\JsonRpc::instance();
-$protocol->setAction($call);
+$protocol->setJsonrpc('2.0');
+$protocol->setMethod('User');
+$protocol->setId('id');
+$protocol->setParams(['class'=>'Test', 'method'=>'t', 'params'=>['b'=>'cc']]);
+
 // 请求
 $request = \Common\Request\RpcRequest::instance();
-$request->setHeaders(['head']);
+$request->setHeaders(['server'=>'rpcTest','host'=>'127.0.0.1','port'=>'9999']);
 $request->setProtocol($protocol);
-// 实例化服务，并且运行
-$client = \Common\Client\ClientTcp::instance(Config\Main::HOST, Config\Main::PORT);
-$client->setRequest($request);
-$client->connect();
+$request->send($client);

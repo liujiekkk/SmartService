@@ -6,24 +6,133 @@
  * @time 下午2:13:15
  */
 namespace Common\Protocol;
-use Common\Action\RpcCall;
-use Common\Action\Action;
+use Library\SerilizeUtil;
 
 class JsonRpc extends Protocol
 {
+    /**
+     * 协议版本号
+     * @var string
+     */
+    protected $jsonrpc;
     
+    /**
+     * 请求方法
+     * @var string
+     */
+    protected $method;
+    
+    /**
+     * 请求参数
+     * @var array
+     */
+    protected $params;
+    
+    /**
+     * 请求、响应ID
+     * @var string
+     */
+    protected $id;
+    
+    /**
+     * 响应结果
+     * @var mixed
+     */
+    protected $result;
+    
+    /**
+     * 错误对象
+     * @var array
+     */
+    protected $error;
+    
+    /**
+     * 错误码
+     * @var string
+     */
+    protected $code;
+    
+    /**
+     * 错误信息
+     * @var string
+     */
+    protected $message;
+    
+    /**
+     * 错误附加说明
+     * @var string
+     */
+    protected $data;
+    
+    /**
+     * @return the $jsonrpc
+     */
+    public function getJsonrpc(): string
+    {
+        return $this->jsonrpc;
+    }
+
+    /**
+     * @return the $method
+     */
+    public function getMethod(): string
+    {
+        return $this->method;
+    }
+    
+    public function getParams(): array 
+    {
+        return $this->params;
+    }
+    
+    /**
+     * @return the $id
+     */
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param string $jsonrpc
+     */
+    public function setJsonrpc(string $jsonrpc)
+    {
+        $this->jsonrpc = $jsonrpc;
+    }
+
+    /**
+     * @param string $method
+     */
+    public function setMethod(string $method)
+    {
+        $this->method = $method;
+    }
+
+    /**
+     * @param field_type $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+   
+    public function setParams(array $data) 
+    {
+        $this->params = $data;
+    }
+
     /**
      * {@inheritDoc}
      * @see \Common\Protocol\Protocol::encode()
      */
     public function encode(): string
     {
-        $method = $this->action->getService().'_'.$this->action->getClass().'_'.$this->action->getMethod();
         $data = [
-            'jsonrpc' => '2.0',
-            'method' => $method,
-            'params' => $this->action->encode(),
-            'id' => $method
+            'jsonrpc' => $this->jsonrpc,
+            'method' => $this->method,
+            'params' => $this->params,
+            'id' => $this->id
         ];
         return SerilizeUtil::serilize($data);
     }
@@ -52,8 +161,9 @@ class JsonRpc extends Protocol
         if ( !isset($data['id']) ) {
             throw new \Exception('JsonRpc no id.', 100000000);
         }
-        $rpcCall = RpcCall::instance();
-        $rpcCall->decode($data['params']);
-        $this->action = $rpcCall;
+        $this->jsonrpc = $data['jsonrpc'];
+        $this->method = $data['method'];
+        $this->params = $data['params'];
+        $this->id = $data['id'];
     }
 }

@@ -27,11 +27,9 @@ class ClientTcp extends Client
      * @param $is_sync 是否是同步客户端
      * @param $key 客户端唯一标识
      */
-    public static function instance(string $host, int $port, int $is_sync=SWOOLE_SOCK_ASYNC, string $key='') :Client
+    public static function instance(int $is_sync=SWOOLE_SOCK_ASYNC, string $key='') :Client
     {
         if ( !self::$instance ) {
-            self::$host = $host;
-            self::$port = $port;
             self::$instance = new static();
             self::$instance->shell = new Shell();
             self::$instance->client = new \swoole_client(SWOOLE_TCP, $is_sync, $key);

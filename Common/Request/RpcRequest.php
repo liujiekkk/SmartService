@@ -8,6 +8,7 @@
 namespace Common\Request;
 use Common\IO\AbstractBuffer;
 use Common\Protocol\JsonRpc;
+use Common\Client\Client;
 
 class RpcRequest extends AbstractRequest
 {
@@ -38,5 +39,11 @@ class RpcRequest extends AbstractRequest
             'protocol' => $this->protocol->encode()
         ];
         return json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+    
+    public function send(Client $client): bool 
+    {
+        $client->setRequest($this);
+        return $client->connect();
     }
 }

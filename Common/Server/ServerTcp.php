@@ -11,8 +11,6 @@ use Common\Server\Event\EventVector;
 use Common\Server\Event\Event;
 use Common\Request\RpcRequest;
 use Common\IO\StringBuffer;
-use Common\Protocol\SerilizeUtil;
-use Common\Protocol\JsonRpc;
 
 class ServerTcp extends Server {
     
@@ -103,16 +101,22 @@ class ServerTcp extends Server {
         $buffer->writeTo($data);
         $request = RpcRequest::instance();
         $request->readBuffer($buffer);
-        $rpcCall = $request->getProtocol()->getAction();
-        // 执行调用
-        $rpcCall->execute();
-        // 获取执行结果
-        $result = $rpcCall->getReturn();
-        // @todo 处理相关业务逻辑
-        echo 'receive: '.$rpcCall->encode()."\n";
+        $protocol = $request->getProtocol();
         
+        $method = $protocol->getMethod();
+        $params = $protocol->getParams();
+        $result = [];
+        try {
+            echo '\\Common\\Server\\Action\\'.$method."Action\n";
+            $class = ('\\Common\\Server\\Action\\'.$method.'Action')::instance();
+            $result = $class->execute($this, $params);
+        } catch (\Throwable $t) {
+            $serv->send($fd, "Unsurport Method {$method}.");
+            $this->close($fd);
+            return;
+        }
         // @todo 将处理结果返回给客户端
-        $serv->send($fd, 'Swoole: fd->'.$fd.' execute: '. $rpcCall->getReturn());
+        $serv->send($fd, 'Swoole: fd->'.$fd.' execute: '. json_encode($result));
     }
     
     /**

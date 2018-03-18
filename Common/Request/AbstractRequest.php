@@ -10,6 +10,7 @@ namespace Common\Request;
 use Common\Protocol\Protocol;
 use Common\IO\AbstractBuffer;
 use Library\Singleton;
+use Common\Client\Client;
 
 abstract class AbstractRequest extends AbstractRequestResponse
 {
@@ -52,5 +53,8 @@ abstract class AbstractRequest extends AbstractRequestResponse
     abstract public function readBuffer(AbstractBuffer $buffer);
     
     abstract protected function toString(): string;
+    
+    abstract public function send(Client $client): bool; 
+    
 }
 

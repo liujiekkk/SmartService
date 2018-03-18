@@ -7,24 +7,11 @@
  */
 namespace Common\Protocol;
 
-use Common\Action\Action;
 use Library\Singleton;
 
 abstract class Protocol
 {
     use Singleton;
-    
-    protected  $action;
-    
-    public function setAction(Action $action) 
-    {
-        $this->action = $action;
-    }
-    
-    public function getAction(): Action
-    {
-        return $this->action;
-    }
     
     abstract public function encode(): string; 
     

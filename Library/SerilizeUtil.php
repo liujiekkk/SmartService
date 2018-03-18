@@ -5,7 +5,7 @@
  * @date 2018年3月6日
  * @time 下午2:16:24
  */
-namespace Common\Protocol;
+namespace Library;
 
 class SerilizeUtil
 {
