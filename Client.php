@@ -16,9 +16,13 @@ $client = \Common\Client\ClientTcp::instance();
 // 协议
 $protocol = \Common\Protocol\JsonRpc::instance();
 $protocol->setJsonrpc('2.0');
-$protocol->setMethod('User');
 $protocol->setId('id');
-$protocol->setParams(['class'=>'Test', 'method'=>'t', 'params'=>['b'=>'cc']]);
+// $protocol->setMethod('User');
+// $protocol->setParams(['class'=>'Test', 'method'=>'t', 'params'=>['b'=>'cc']]);
+// $protocol->setMethod('System');
+// $protocol->setParams(['class'=>'Test', 'method'=>'shutdown', 'params'=>[]]);
+$protocol->setMethod('System');
+$protocol->setParams(['class'=>'Test', 'method'=>'reload', 'params'=>[]]);
 
 // 请求
 $request = \Common\Request\RpcRequest::instance();

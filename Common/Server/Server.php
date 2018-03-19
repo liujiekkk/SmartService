@@ -79,26 +79,14 @@ abstract class Server {
     }
     
     /**
-     * 重启服务进程
-     * @param $onlyReloadTaskworker 是否仅重启task进程
-     * @return Server
-     */
-    protected function reload(bool $onlyReloadTaskworker = false) :Server 
-    {
-        $this->server->reload($onlyReloadTaskworker);
-        return $this;
-    }
-    
-    /**
      * 使当前worker进程停止运行，并立即触发onWorkerStop回调函数。
      * @param int $workerId
      * @param bool $waitEvent
-     * @return Server
+     * @return bool
      */
-    protected function stop(int $workerId = -1, bool $waitEvent = false) :Server 
+    protected function stop(int $workerId = -1, bool $waitEvent = false): bool 
     {
-        $this->server->stop($workerId, $waitEvent);
-        return $this;
+        return $this->server->stop($workerId, $waitEvent);
     }
     
     /**
@@ -109,16 +97,6 @@ abstract class Server {
     protected function trick(int $time, callable $callback) 
     {
         $this->server->trick($time, $callback);     
-    }
-    
-    /**
-     * 关闭客户端连接
-     * @param int $fd
-     * @param bool $reset
-     */
-    protected function close(int $fd, bool $reset = false) :bool
-    {
-        return $this->server->close($fd, $reset);
     }
     
     /**
@@ -174,9 +152,19 @@ abstract class Server {
      * @param string $message 为发送的消息数据内容，没有长度限制，但超过8K时会启动内存临时文件
      * @param int $dst_worker_id 目标进程的ID，范围是0 ~ (worker_num + task_worker_num - 1)
      */
-    public function sendMessage(string $message, int $dst_worker_id) 
+    protected function sendMessage(string $message, int $dst_worker_id) 
     {
         return $this->server->sendMessage($message, $dst_worker_id);
+    }
+    
+    /**
+     * 关闭客户端连接
+     * @param int $fd
+     * @param bool $reset
+     */
+    public function close(int $fd, bool $reset = false) :bool
+    {
+        return $this->server->close($fd, $reset);
     }
     
     /**
@@ -184,7 +172,7 @@ abstract class Server {
      * @param int $fd
      * @return bool
      */
-    protected function exist(int $fd) :bool 
+    public function exist(int $fd) :bool 
     {
         return $this->server->exist($fd);    
     }
@@ -196,7 +184,7 @@ abstract class Server {
      * @param bool $ignoreError
      * @return array
      */
-    protected function getClientInfo(int $fd, int $extraData, bool $ignoreError = false) :array 
+    public function getClientInfo(int $fd, int $extraData, bool $ignoreError = false) :array 
     {
         return $this->server->getClientInfo($fd, $extraData, $ignoreError);
     }
@@ -207,7 +195,7 @@ abstract class Server {
      * @param int $pagesize
      * @return array
      */
-    protected function getClientList(int $startFd = 0, int $pagesize = 10) :array 
+    public function getClientList(int $startFd = 0, int $pagesize = 10) :array 
     {
         return $this->server->getClientList($startFd, $pagesize);
     }
@@ -219,6 +207,17 @@ abstract class Server {
     public function stats() :array 
     {
         return $this->server->stats();
+    }
+    
+    /**
+     * 重启服务进程
+     * @param $onlyReloadTaskworker 是否仅重启task进程
+     * @return Server
+     */
+    public function reload(bool $onlyReloadTaskworker = false) :Server
+    {
+        $this->server->reload($onlyReloadTaskworker);
+        return $this;
     }
     
     /**

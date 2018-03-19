@@ -9,7 +9,7 @@
 namespace Common\Server\Action;
 
 use Common\Server\Server;
-class ServerAction extends Action
+class SystemAction extends Action
 {
     
     public function execute(Server $server, array $params): array

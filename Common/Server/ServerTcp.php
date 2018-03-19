@@ -23,6 +23,7 @@ class ServerTcp extends Server {
     public static function instance(string $host, int $port, array $settings=[]) :Server
     {
         if ( !self::$instance ) {
+            
             self::$instance = new static();
             // 多进程模式：SWOOLE_PROCESS 基础模式：SWOOLE_BASE
             self::$instance->server = new \swoole_server($host, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
@@ -105,12 +106,14 @@ class ServerTcp extends Server {
         
         $method = $protocol->getMethod();
         $params = $protocol->getParams();
+        
+        // 处理调用
         $result = [];
         try {
             $class = ('\\Common\\Server\\Action\\'.$method.'Action')::instance();
             $result = $class->execute($this, $params);
         } catch (\Throwable $t) {
-            $serv->send($fd, "Unsurport Method {$method}.");
+            $serv->send($fd, $t->getMessage());
             $this->close($fd);
             return;
         }
