@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 客户端启动入口
  * @author liujie <king.2oo8@163.com>
@@ -13,19 +12,11 @@ Autoload::instance()->setIncludePath(__DIR__)->init();
 // 实例化服务
 $client = \Common\Client\ClientTcp::instance();
 
-// 协议
-$protocol = \Common\Protocol\JsonRpc::instance();
-$protocol->setJsonrpc('2.0');
-$protocol->setId('id');
-// $protocol->setMethod('User');
-// $protocol->setParams(['class'=>'Test', 'method'=>'t', 'params'=>['b'=>'cc']]);
-// $protocol->setMethod('System');
-// $protocol->setParams(['class'=>'Test', 'method'=>'shutdown', 'params'=>[]]);
-$protocol->setMethod('System');
-$protocol->setParams(['class'=>'Test', 'method'=>'reload', 'params'=>[]]);
-
-// 请求
-$request = \Common\Request\RpcRequest::instance();
-$request->setHeaders(['server'=>'rpcTest','host'=>'127.0.0.1','port'=>'9999']);
-$request->setProtocol($protocol);
-$request->send($client);
+$connection = new Common\Connection\Rpc\RpcConnection();
+$connection->setRequest(new Common\Connection\Rpc\RpcRequest());
+$connection->setHeader('method', 'user');
+$connection->setHeader('host', '127.0.0.1');
+$connection->setHeader('port', '9999');
+$connection->setData(['class'=>'test', 'method'=>'t', 'params'=>['a','b']]);
+$client->setConnection($connection);
+$client->connect();

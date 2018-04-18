@@ -9,8 +9,10 @@ namespace Common\Server;
 
 use Common\Server\Event\EventVector;
 use Common\Server\Event\Event;
-use Common\Request\RpcRequest;
 use Common\IO\StringBuffer;
+use Common\Connection\Rpc\RpcConnection;
+use Common\Connection\Rpc\RpcRequest;
+use Common\Connection\Rpc\RpcResponse;
 
 class ServerTcp extends Server {
     
@@ -28,6 +30,8 @@ class ServerTcp extends Server {
             // 多进程模式：SWOOLE_PROCESS 基础模式：SWOOLE_BASE
             self::$instance->server = new \swoole_server($host, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
             self::$instance->server->set($settings);
+            // 初始化服务端客户端链接
+            self::$instance->connection = new RpcConnection();
         }
         return self::$instance;
     }
@@ -100,25 +104,33 @@ class ServerTcp extends Server {
     {
         $buffer = new StringBuffer();
         $buffer->writeTo($data);
-        $request = RpcRequest::instance();
-        $request->readBuffer($buffer);
-        $protocol = $request->getProtocol();
+        $this->connection->setRequest(new \Common\Connection\Rpc\RpcRequest());
+        $this->connection->readBuffer($buffer);
         
-        $method = $protocol->getMethod();
-        $params = $protocol->getParams();
+        
+        $method = $this->connection->getHeader('method');
+        $params = $this->connection->getData();
         
         // 处理调用
         $result = [];
         try {
-            $class = ('\\Common\\Server\\Action\\'.$method.'Action')::instance();
+            $class = ('\\Common\\Server\\Action\\'.ucfirst($method).'Action')::instance();
             $result = $class->execute($this, $params);
         } catch (\Throwable $t) {
             $serv->send($fd, $t->getMessage());
             $this->close($fd);
             return;
         }
-        // @todo 将处理结果返回给客户端
-        $serv->send($fd, 'Swoole: fd->'.$fd.' execute: '. json_encode($result));
+        // 创建响应
+        $this->connection->setResponse(new RpcResponse());
+        $this->connection->setHeader('code', 0);
+        $this->connection->setHeader('error', '');
+        $this->connection->setHeader('message', '成功');
+        $this->connection->setHeader('data', '');
+        $this->connection->setData($result);
+        $this->connection->writeBuffer($buffer);
+        // 将处理结果返回给客户端
+        $serv->send($fd, 'Swoole: fd->'.$fd.' execute: '. $buffer->read());
     }
     
     /**

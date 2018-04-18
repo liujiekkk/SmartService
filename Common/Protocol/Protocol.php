@@ -7,12 +7,8 @@
  */
 namespace Common\Protocol;
 
-use Library\Singleton;
-
 abstract class Protocol
 {
-    use Singleton;
-    
     abstract public function encode(): string; 
     
     abstract public function decode(string $str);

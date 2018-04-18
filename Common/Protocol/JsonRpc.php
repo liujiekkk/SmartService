@@ -71,7 +71,7 @@ class JsonRpc extends Protocol
     {
         return $this->jsonrpc;
     }
-
+    
     /**
      * @return the $method
      */
@@ -80,7 +80,7 @@ class JsonRpc extends Protocol
         return $this->method;
     }
     
-    public function getParams(): array 
+    public function getParams(): array
     {
         return $this->params;
     }
@@ -91,6 +91,86 @@ class JsonRpc extends Protocol
     public function getId(): string
     {
         return $this->id;
+    }
+    
+    /**
+     * @return the $result
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
+
+    /**
+     * @return the $error
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
+
+    /**
+     * @return the $code
+     */
+    public function getCode()
+    {
+        return $this->code;
+    }
+
+    /**
+     * @return the $message
+     */
+    public function getMessage()
+    {
+        return $this->message;
+    }
+
+    /**
+     * @return the $data
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param mixed $result
+     */
+    public function setResult($result)
+    {
+        $this->result = $result;
+    }
+
+    /**
+     * @param multitype: $error
+     */
+    public function setError($error)
+    {
+        $this->error = $error;
+    }
+
+    /**
+     * @param string $code
+     */
+    public function setCode($code)
+    {
+        $this->code = $code;
+    }
+
+    /**
+     * @param string $message
+     */
+    public function setMessage($message)
+    {
+        $this->message = $message;
+    }
+
+    /**
+     * @param string $data
+     */
+    public function setData($data)
+    {
+        $this->data = $data;
     }
 
     /**
@@ -132,7 +212,12 @@ class JsonRpc extends Protocol
             'jsonrpc' => $this->jsonrpc,
             'method' => $this->method,
             'params' => $this->params,
-            'id' => $this->id
+            'id' => $this->id,
+            'result' => $this->result,
+            'error' => $this->error,
+            'code' => $this->code,
+            'message' => $this->message,
+            'data' => $this->data
         ];
         return SerilizeUtil::serilize($data);
     }
@@ -161,9 +246,29 @@ class JsonRpc extends Protocol
         if ( !isset($data['id']) ) {
             throw new \Exception('JsonRpc no id.', 100000000);
         }
+        if ( !isset($data['result']) ) {
+            throw new \Exception('JsonRpc no result.', 100000000);
+        }
+        if ( !isset($data['error']) ) {
+            throw new \Exception('JsonRpc no error.', 100000000);
+        }
+        if ( !isset($data['code']) ) {
+            throw new \Exception('JsonRpc no code.', 100000000);
+        }
+        if ( !isset($data['message']) ) {
+            throw new \Exception('JsonRpc no message.', 100000000);
+        }
+        if ( !isset($data['data']) ) {
+            throw new \Exception('JsonRpc no data.', 100000000);
+        }
         $this->jsonrpc = $data['jsonrpc'];
         $this->method = $data['method'];
         $this->params = $data['params'];
         $this->id = $data['id'];
+        $this->result = $data['result'];
+        $this->code = $data['code'];
+        $this->error = $data['error'];
+        $this->message = $data['message'];
+        $this->data = $data['data'];
     }
 }

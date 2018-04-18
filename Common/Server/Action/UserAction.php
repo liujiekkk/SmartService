@@ -15,7 +15,7 @@ class UserAction extends Action
     public function execute(Server $server, array $params): array
     {
         // 业务类位置
-        $className = '\\'.$params['class'];
+        $className = '\\'.ucfirst($params['class']);
         $classObj = new $className();
         $data = call_user_func_array([$classObj, $params['method']], $params['params']);
         return [$data];

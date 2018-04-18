@@ -8,8 +8,15 @@
 namespace Common\Server;
 
 use Common\Server\Event\EventVector;
+use Common\Connection\Connection;
 
 abstract class Server {
+    
+    /**
+     * 服务端客户端链接
+     * @var Connection
+     */
+    protected $connection;
     
     /**
      * 存储单例对象

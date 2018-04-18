@@ -7,7 +7,8 @@
  */
 namespace Common\Client;
 use Common\Server\Event\EventVector;
-use Common\Request\AbstractRequest;
+use Common\Connection\Request;
+use Common\Connection\Connection;
 abstract class Client 
 {
     /**
@@ -17,10 +18,10 @@ abstract class Client
     protected $client;
     
     /**
-     * 请求对象实例
-     * @var AbstractRequest
+     * 链接对象实例
+     * @var Connection
      */
-    protected $request;
+    protected $connection;
     
     /**
      * 存储单例对象
@@ -53,9 +54,8 @@ abstract class Client
      */
     public function connect(float $timeout = 0.5, int $flag = 0) :bool 
     {
-        $headers = $this->request->getHeaders();
-        $host = $headers['host'];
-        $port = $headers['port'];
+        $host = $this->connection->getHeader('host');
+        $port = $this->connection->getHeader('port');
         // 初始化客户端事件
         $events = $this->initEvent();
         $this->loadEvent($events);
@@ -180,11 +180,11 @@ abstract class Client
     }
     
     /**
-     * 设置请求对象
-     * @param Request $request
+     * 设置链接对象
+     * @param Connection $connection
      */
-    public function setRequest(AbstractRequest $request) 
+    public function setConnection(Connection $connection) 
     {
-        $this->request = $request;
+        $this->connection = $connection;
     } 
 }
