@@ -8,18 +8,17 @@
 namespace Common\Client;
 use Common\Server\Event\EventVector;
 use Common\Server\Event\Event;
-use Common\Request\Request;
-use Library\Shell;
 use Common\IO\StringBuffer;
-use Common\Connection\Rpc\RpcConnection;
+use Common\Log\Log;
+use Config\Main;
 
 class ClientTcp extends Client 
 {
     /**
-     * 命令行对象
-     * @var Shell
+     * 日志对象实例
+     * @var Log
      */
-    protected $shell;
+    protected $log;
     
     /**
      * 初始化 Client
@@ -32,7 +31,7 @@ class ClientTcp extends Client
     {
         if ( !self::$instance ) {
             self::$instance = new static();
-            self::$instance->shell = new Shell();
+            self::$instance->log = new Log(Main::CLIENT_LOG_PATH, Main::DEBUG_MODE);
             self::$instance->client = new \swoole_client(SWOOLE_TCP, $is_sync, $key);
         }
         return self::$instance;
@@ -55,7 +54,7 @@ class ClientTcp extends Client
      */
     public function onConnect($client, $data='') 
     {
-        $this->log('Connect success.');
+        $this->log->info(__METHOD__.' Connect success.');
         // 链接成功以后发送请求数据
         $buffer = new StringBuffer();
         // 写入buffer
@@ -66,30 +65,21 @@ class ClientTcp extends Client
     public function onReceive($client, string $data='') 
     {
         if (!empty($data)) {
-            $text = $this->shell->colorFont('received:'. $data, Shell::COLOR_GREEN);
-            $this->log($text);
+            $this->log->info(__METHOD__. ' Received:'. $data);
             $client->close();
             return;
+        } else {
+            $this->log->info(__METHOD__. ' No response');
         }
-        $this->log('no response.');
     }
     
     public function onClose($client) 
     {
-        $this->log('client close');
+        $this->log->info(__METHOD__. ' Client close.');
     }
     
     public function onError($client) 
     {
         exit("error\n");
-    }
-    
-    /**
-     * 日志记录函数，debug 模式下为输出
-     * @param string $text 记录内容
-     */
-    protected function log(string $text) 
-    {
-        $this->shell->println($text);
     }
 }

@@ -13,8 +13,16 @@ use Common\IO\StringBuffer;
 use Common\Connection\Rpc\RpcConnection;
 use Common\Connection\Rpc\RpcRequest;
 use Common\Connection\Rpc\RpcResponse;
+use Common\Log\Log;
+use Config\Main;
 
 class ServerTcp extends Server {
+    
+    /**
+     * 日志模块
+     * @var Log
+     */
+    protected $log;
     
     /**
      * 初始化 Server
@@ -32,6 +40,8 @@ class ServerTcp extends Server {
             self::$instance->server->set($settings);
             // 初始化服务端客户端链接
             self::$instance->connection = new RpcConnection();
+            // 初始化日志模块
+            self::$instance->log = new Log(Main::SERVER_LOG_PATH, Main::DEBUG_MODE);
         }
         return self::$instance;
     }
@@ -60,7 +70,7 @@ class ServerTcp extends Server {
     {
         // 设置 master 进程名称
         if ( !cli_set_process_title('Swoole master') ) {
-            echo 'Can not set process title';
+            $this->log->warning('Can not set process title');
             return;
         }
     }
@@ -72,7 +82,7 @@ class ServerTcp extends Server {
     {
         // 设置 manager 进程名称
         if ( !cli_set_process_title('Swoole manager') ) {
-            echo 'Can not set process title';
+            $this->log->warning('Can not set process title');
             return;
         }
     }
@@ -84,7 +94,7 @@ class ServerTcp extends Server {
     {
         // 设置 worker 进程名称
         if ( !cli_set_process_title('Swoole worker') ) {
-            echo 'Can not set process title';
+            $this->log->warning('Can not set process title');
             return;
         }
     }
@@ -94,7 +104,7 @@ class ServerTcp extends Server {
      */
     public function onConnect($serv, $fd)
     {
-        echo "Hello Client {$fd} \n";
+        $this->log->info("Hello Client {$fd}");
     }
     
     /**
@@ -117,7 +127,18 @@ class ServerTcp extends Server {
             $class = ('\\Common\\Server\\Action\\'.ucfirst($method).'Action')::instance();
             $result = $class->execute($this, $params);
         } catch (\Throwable $t) {
-            $serv->send($fd, $t->getMessage());
+            // 写入错误日志
+            $this->log->error($t->getMessage());
+            // 创建响应
+            $this->connection->setResponse(new RpcResponse());
+            $this->connection->setHeader('code', 100000000);
+            $this->connection->setHeader('error', '');
+            $this->connection->setHeader('message', '服务器异常');
+            $this->connection->setHeader('data', $t->getMessage());
+            $this->connection->setData([]);
+            $this->connection->writeBuffer($buffer);
+            $serv->send($fd, $buffer->read());
+            // 关闭客户端链接
             $this->close($fd);
             return;
         }
@@ -138,6 +159,6 @@ class ServerTcp extends Server {
      */
     public function onClose($serv, $fd) 
     {
-        echo "Client: Close.\n";
+        $this->log->info("Client: Close.");
     }
 }

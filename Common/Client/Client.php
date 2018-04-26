@@ -7,7 +7,6 @@
  */
 namespace Common\Client;
 use Common\Server\Event\EventVector;
-use Common\Connection\Request;
 use Common\Connection\Connection;
 abstract class Client 
 {

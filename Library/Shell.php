@@ -33,10 +33,16 @@ class Shell
     const COLOR_BLUE = 'blue';
     
     /**
-     * 粉红色字体
+     * 淡蓝字体
      * @var string
      */
-    const COLOR_PINK = 'pink';
+    const COLOR_SKY_BLUE = 'sky_blue';
+    
+    /**
+     * 紫色字体
+     * @var string
+     */
+    const COLOR_PURPLE = 'purple';
     
     /**
      * 普通字体
@@ -64,14 +70,17 @@ class Shell
             case self::COLOR_BLUE :
                 $out = "[34m"; //Blue
                 break;
-            case self::COLOR_PINK :
+            case self::COLOR_PURPLE :
                 $out = "[35m";
+                break;
+            case self::COLOR_SKY_BLUE:
+                $out = "[36m";
                 break;
             case self::COLOR_NORMAL :
                 $out = "[39m";
                 break;
             default:
-                $out = "[32m"; //Green
+                $out = "[39m"; //normal
         }
         return chr(27) . "$out" . "$text" . chr(27) . "[0m";
     }
@@ -80,8 +89,13 @@ class Shell
      * 打印一行数据
      * @param string $str 欲输出的字符串
      */
-    public function println(string $str) 
+    public function println(string $str, string $text='', $color=self::COLOR_NORMAL) 
     {
-        echo "{$str}\n";
+        if ( $text ) {
+            $colorText = $this->colorFont($text, $color);
+            echo str_replace($text, $colorText, $str). PHP_EOL;
+        } else {
+            echo $str. PHP_EOL;
+        }
     }
 }

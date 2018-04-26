@@ -76,4 +76,22 @@ class Main {
      */
     const PROTOCOL_DATA_PARSER = 'Server\Parser\JsonRpc';
     
+    /**
+     * 是否开启debug 模式
+     * @var bool
+     */
+    const DEBUG_MODE = TRUE;
+    
+    /**
+     * 服务端日志存储路径
+     * @var string
+     */
+    const SERVER_LOG_PATH = '/tmp/smart-server.log';
+    
+    /**
+     * 客户端日志存储路径
+     * @var string
+     */
+    const CLIENT_LOG_PATH = '/tmp/smart-client.log';
+    
 }
