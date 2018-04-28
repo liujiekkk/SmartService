@@ -8,6 +8,7 @@
 namespace Common\Client;
 use Common\Server\Event\EventVector;
 use Common\Connection\Connection;
+
 abstract class Client 
 {
     /**
@@ -45,19 +46,24 @@ abstract class Client
     abstract static function instance(int $is_sync=SWOOLE_SOCK_ASYNC, string $key='') :Client;
     
     /**
+     * 初始化服务事件
+     * @return EventVector
+     */
+    abstract protected function initEvent(): EventVector;
+    
+    abstract public function access(): bool;
+    
+    /**
      * 连接到远程服务器
+     * @param string $host 远程主机ip
+     * @param string $port 远程主机端口号
      * @param float $timeout 是网络IO的超时,包括connect/send/recv，单位是s，支持浮点数。默认为0.5s，即500ms
      * @param int $flag 参数在TCP类型,$flag=1表示设置为非阻塞socket，connect会立即返回。
      * 如果将$flag设置为1，那么在send/recv前必须使用swoole_client_select来检测是否完成了连接
      * @return bool
      */
-    public function connect(float $timeout = 0.5, int $flag = 0) :bool 
+    protected function connect(string $host, int $port, float $timeout = 0.5, int $flag = 0) :bool 
     {
-        $host = $this->connection->getHeader('host');
-        $port = $this->connection->getHeader('port');
-        // 初始化客户端事件
-        $events = $this->initEvent();
-        $this->loadEvent($events);
         return $this->client->connect($host, $port, $timeout, $flag);
     }
     
@@ -157,17 +163,6 @@ abstract class Client
     }
     
     /**
-     * 关闭链接
-     * @param bool $force
-     */
-    public function close(bool $force = false) 
-    {
-        return $this->client->close();
-    }
-    
-    abstract protected function initEvent() :EventVector;
-    
-    /**
      * 加载事件容器中的事件
      * @param EventVector $events 事件容器
      */
@@ -179,6 +174,15 @@ abstract class Client
     }
     
     /**
+     * 关闭链接
+     * @param bool $force
+     */
+    protected function close(bool $force = false) 
+    {
+        return $this->client->close();
+    }
+    
+    /**
      * 设置链接对象
      * @param Connection $connection
      */
@@ -186,4 +190,14 @@ abstract class Client
     {
         $this->connection = $connection;
     } 
+    
+    /**
+     * 获取链接对象
+     * @return Connection
+     */
+    public function getConnection(): Connection 
+    {
+        return $this->connection;    
+    }
+    
 }

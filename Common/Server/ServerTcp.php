@@ -151,7 +151,7 @@ class ServerTcp extends Server {
         $this->connection->setData($result);
         $this->connection->writeBuffer($buffer);
         // 将处理结果返回给客户端
-        $serv->send($fd, 'Swoole: fd->'.$fd.' execute: '. $buffer->read());
+        $serv->send($fd, $buffer->read());
     }
     
     /**

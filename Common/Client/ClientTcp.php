@@ -14,6 +14,13 @@ use Config\Main;
 
 class ClientTcp extends Client 
 {
+    
+    /**
+     * 是否开启异步
+     * @var bool
+     */
+    protected $isAsync;
+    
     /**
      * 日志对象实例
      * @var Log
@@ -27,10 +34,11 @@ class ClientTcp extends Client
      * @param $is_sync 是否是同步客户端
      * @param $key 客户端唯一标识
      */
-    public static function instance(int $is_sync=SWOOLE_SOCK_ASYNC, string $key='') :Client
+    public static function instance(int $is_sync=SWOOLE_SOCK_SYNC, string $key='') :Client
     {
         if ( !self::$instance ) {
             self::$instance = new static();
+            self::$instance->isAsync = $is_sync;
             self::$instance->log = new Log(Main::CLIENT_LOG_PATH, Main::DEBUG_MODE);
             self::$instance->client = new \swoole_client(SWOOLE_TCP, $is_sync, $key);
         }
@@ -45,6 +53,42 @@ class ClientTcp extends Client
         $events->addEvent(new Event('close', [$this, 'onClose']));
         $events->addEvent(new Event('error', [$this, 'onError']));
         return $events;
+    }
+    
+    public function access(): bool 
+    {
+        $host = $this->connection->getHeader('host');
+        $port = $this->connection->getHeader('port');
+        $timout = 0.5;
+        $flag = 0;
+        // 异步客户端，同步客户端处理方式不一样
+        if ( $this->isAsync ) {
+            // 初始化客户端事件
+            $events = $this->initEvent();
+            $this->loadEvent($events);
+            return $this->client->connect($host, $port, $timout, $flag);
+        } else {
+            if ( !$this->client->connect($host, $port, $timout, $flag) ) {
+                $this->log->error('Connect failed.');
+            }
+            // 链接成功以后发送请求数据
+            $buffer = new StringBuffer();
+            // 写入buffer
+            $this->connection->writeBuffer($buffer);
+            if ( !$this->client->send($buffer->read()) ) {
+                $this->log->error('Send failed.');
+            }
+            $data = $this->client->recv();
+            if ( !$data ) {
+                $this->log->error(' Recv failed.');
+            }
+            // 解析响应数据
+            $buffer = new StringBuffer();
+            $buffer->writeTo($data);
+            $this->connection->setResponse(new \Common\Connection\Rpc\RpcResponse());
+            $this->connection->readBuffer($buffer);
+            return $this->client->close();
+        }
     }
     
     /**
@@ -65,7 +109,11 @@ class ClientTcp extends Client
     public function onReceive($client, string $data='') 
     {
         if (!empty($data)) {
-            $this->log->info(__METHOD__. ' Received:'. $data);
+            // 解析响应数据
+            $buffer = new StringBuffer();
+            $buffer->writeTo($data);
+            $this->connection->setResponse(new \Common\Connection\Rpc\RpcResponse());
+            $this->connection->readBuffer($buffer);
             $client->close();
             return;
         } else {

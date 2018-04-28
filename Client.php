@@ -19,4 +19,6 @@ $connection->setHeader('host', '127.0.0.1');
 $connection->setHeader('port', '9999');
 $connection->setData(['class'=>'test', 'method'=>'t', 'params'=>['a','b']]);
 $client->setConnection($connection);
-$client->connect();
+$client->access();
+$conn = $client->getConnection();
+var_dump($conn->getData());
