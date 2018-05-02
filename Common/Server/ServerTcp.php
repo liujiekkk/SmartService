@@ -118,7 +118,7 @@ class ServerTcp extends Server {
         $this->connection->readBuffer($buffer);
         
         
-        $method = $this->connection->getHeader('method');
+        $method = $this->connection->getHeader('type');
         $params = $this->connection->getData();
         
         // 处理调用

@@ -14,7 +14,13 @@ $client = new \Common\Client\ClientTcp();
 
 $connection = new Common\Connection\Rpc\RpcConnection();
 $connection->setRequest(new Common\Connection\Rpc\RpcRequest());
-$connection->setHeader('method', 'user');
+// 系统命令
+// $connection->setHeader('type', 'system');
+// $connection->setHeader('host', '127.0.0.1');
+// $connection->setHeader('port', '9999');
+// $connection->setData(['class'=>'test', 'method'=>'reload', 'params'=>[rand(0,1000),'b']]);
+// 业务代码
+$connection->setHeader('type', 'user');
 $connection->setHeader('host', '127.0.0.1');
 $connection->setHeader('port', '9999');
 $connection->setData(['class'=>'test', 'method'=>'getParam', 'params'=>[rand(0,1000),'b']]);

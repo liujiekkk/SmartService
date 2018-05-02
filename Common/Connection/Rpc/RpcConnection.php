@@ -15,7 +15,7 @@ class RpcConnection extends Connection
         $jsonRpc->setJsonrpc('2.0');
         if ( $this->request ) {
             // request 相关
-            $jsonRpc->setMethod($this->request->getHeader('method'));
+            $jsonRpc->setMethod($this->request->getHeader('type'));
             $jsonRpc->setParams($this->request->getRequestBody());
             // 默认值
             $jsonRpc->setCode('');
@@ -43,7 +43,7 @@ class RpcConnection extends Connection
         $jsonRpc->decode($str);
         if ( $this->request ) {
             // 解析请数据
-            $this->request->setHeader('method', $jsonRpc->getMethod());
+            $this->request->setHeader('type', $jsonRpc->getMethod());
             $this->request->setData($jsonRpc->getParams());
         } else {
             // 解析响应数据

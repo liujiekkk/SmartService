@@ -14,8 +14,16 @@ class SystemAction extends Action
     
     public function execute(Server $server, array $params): array
     {
-        $data = call_user_func_array([$server, $params['method']], $params['params']);
-        return [$data];
+        try {
+            // 系统类
+            $className = get_class($server);
+            $reflectionClass = new \ReflectionClass($className);
+            $reflectionMethod = $reflectionClass->getMethod($params['method']);
+            $data = $reflectionMethod->invokeArgs($server, $params['params']);
+            return [$data];
+        } catch (\Throwable $t) {
+            throw new \Exception(__METHOD__.' '. $t->getMessage());
+        }
     }
 }
 
