@@ -10,15 +10,15 @@ include_once 'Autoload.php';
 Autoload::instance()->setIncludePath(__DIR__)->init();
 
 // 实例化服务
-$client = \Common\Client\ClientTcp::instance();
+$client = new \Common\Client\ClientTcp();
 
 $connection = new Common\Connection\Rpc\RpcConnection();
 $connection->setRequest(new Common\Connection\Rpc\RpcRequest());
 $connection->setHeader('method', 'user');
 $connection->setHeader('host', '127.0.0.1');
 $connection->setHeader('port', '9999');
-$connection->setData(['class'=>'test', 'method'=>'t', 'params'=>['a','b']]);
+$connection->setData(['class'=>'test', 'method'=>'getParam', 'params'=>[rand(0,1000),'b']]);
 $client->setConnection($connection);
 $client->access();
-$conn = $client->getConnection();
-var_dump($conn->getData());
+$res = $client->getConnection()->getResponse();
+var_dump($res->getData());

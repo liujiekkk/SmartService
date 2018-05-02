@@ -7,7 +7,7 @@
  */
 
 class Test {
-    public function t($a) {
+    public function getParam($a) {
         return "test function return {$a}";
     }
 }

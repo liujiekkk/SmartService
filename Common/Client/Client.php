@@ -12,38 +12,22 @@ use Common\Connection\Connection;
 abstract class Client 
 {
     /**
-     * 客户端对象实例
-     * @var Client
+     * 当前客户端对象实例
+     * @var Swoole\Client
      */
     protected $client;
+    
+    /**
+     * 当前进程所有客户端实例
+     * @var Swoole\Client
+     */
+    protected static $clients;
     
     /**
      * 链接对象实例
      * @var Connection
      */
     protected $connection;
-    
-    /**
-     * 存储单例对象
-     * @var Client
-     */
-    protected static $instance;
-    
-    /**
-     * 构造函数私有化
-     */
-    protected function __construct() {}
-    /**
-     * 克隆私有化
-     */
-    protected function __clone() {}
-    
-    /**
-     * 初始化 Client
-     * @param $is_sync 是否是同步客户端
-     * @param $key 客户端唯一标识
-     */
-    abstract static function instance(int $is_sync=SWOOLE_SOCK_ASYNC, string $key='') :Client;
     
     /**
      * 初始化服务事件

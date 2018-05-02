@@ -34,15 +34,12 @@ class ClientTcp extends Client
      * @param $is_sync 是否是同步客户端
      * @param $key 客户端唯一标识
      */
-    public static function instance(int $is_sync=SWOOLE_SOCK_SYNC, string $key='') :Client
+    public function __construct(int $is_sync=SWOOLE_SOCK_SYNC, string $key='')
     {
-        if ( !self::$instance ) {
-            self::$instance = new static();
-            self::$instance->isAsync = $is_sync;
-            self::$instance->log = new Log(Main::CLIENT_LOG_PATH, Main::DEBUG_MODE);
-            self::$instance->client = new \swoole_client(SWOOLE_TCP, $is_sync, $key);
-        }
-        return self::$instance;
+        
+        $this->isAsync = $is_sync;
+        $this->log = new Log(Main::CLIENT_LOG_PATH, Main::DEBUG_MODE);
+        $this->client = new \swoole_client(SWOOLE_TCP, $is_sync, $key);
     }
     
     public function initEvent() :EventVector
@@ -70,7 +67,10 @@ class ClientTcp extends Client
         } else {
             if ( !$this->client->connect($host, $port, $timout, $flag) ) {
                 $this->log->error('Connect failed.');
+            } else {
+                self::$clients[$this->client->sock] = $this->client;
             }
+            
             // 链接成功以后发送请求数据
             $buffer = new StringBuffer();
             // 写入buffer
