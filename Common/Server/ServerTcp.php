@@ -41,6 +41,7 @@ class ServerTcp extends Server {
                 'backlog' => $config->backlog,
                 'max_request' => $config->max_request,
                 'dispatch_mode' => $config->dispach_mode,
+                'daemonize' => $config->daemonize
             ]);
             // 初始化服务端客户端链接
             self::$instance->connection = new RpcConnection();
