@@ -9,7 +9,7 @@ namespace Common\Server;
 
 use Common\Server\Event\EventVector;
 use Common\Connection\Connection;
-use Config\Server\Config;
+use Conf\Server\Config;
 
 abstract class Server {
     

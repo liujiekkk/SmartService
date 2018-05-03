@@ -10,7 +10,7 @@ use Common\Server\Event\EventVector;
 use Common\Server\Event\Event;
 use Common\IO\StringBuffer;
 use Common\Log\Log;
-use Config\Client\Config;
+use Conf\Client\Config;
 
 class ClientTcp extends Client 
 {

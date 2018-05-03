@@ -5,7 +5,7 @@
  * @date 2018年2月13日
  * @time 下午3:12:05
  */
-namespace Config\Server;
+namespace Conf\Server;
 
 class Config {
     

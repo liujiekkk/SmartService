@@ -14,7 +14,7 @@ use Common\Connection\Rpc\RpcConnection;
 use Common\Connection\Rpc\RpcRequest;
 use Common\Connection\Rpc\RpcResponse;
 use Common\Log\Log;
-use Config\Server\Config;
+use Conf\Server\Config;
 
 class ServerTcp extends Server {
     

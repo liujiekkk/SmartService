@@ -5,7 +5,7 @@
  * @date 2018年5月3日
  * @time 上午10:19:14
  */
-namespace Config\Client;
+namespace Conf\Client;
 
 class Config
 {
