@@ -8,6 +8,7 @@
 namespace Common\Client;
 use Common\Server\Event\EventVector;
 use Common\Connection\Connection;
+use Config\Client\Config;
 
 abstract class Client 
 {
@@ -30,11 +31,21 @@ abstract class Client
     protected $connection;
     
     /**
+     * 创建一个客户端实例
+     * @param Config $config 配置文件项目
+     */
+    abstract public function __construct(Config $config);
+    
+    /**
      * 初始化服务事件
      * @return EventVector
      */
     abstract protected function initEvent(): EventVector;
     
+    /**
+     * 发送请求并且获取返回数据
+     * @return bool
+     */
     abstract public function access(): bool;
     
     /**

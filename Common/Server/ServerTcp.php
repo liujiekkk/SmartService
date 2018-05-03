@@ -14,7 +14,7 @@ use Common\Connection\Rpc\RpcConnection;
 use Common\Connection\Rpc\RpcRequest;
 use Common\Connection\Rpc\RpcResponse;
 use Common\Log\Log;
-use Config\Main;
+use Config\Server\Config;
 
 class ServerTcp extends Server {
     
@@ -26,22 +26,26 @@ class ServerTcp extends Server {
     
     /**
      * 初始化 Server
-     * @param string $host 指定监听的IP地址
-     * @param int $port 监听端口号
-     * @param array $settings 额外配置项
+     * @param Config $config 服务端配置项
      */
-    public static function instance(string $host, int $port, array $settings=[]) :Server
+    public static function instance(Config $config) :Server
     {
         if ( !self::$instance ) {
             
             self::$instance = new static();
             // 多进程模式：SWOOLE_PROCESS 基础模式：SWOOLE_BASE
-            self::$instance->server = new \swoole_server($host, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
-            self::$instance->server->set($settings);
+            self::$instance->server = new \swoole_server($config->host, $config->port, $config->mode, $config->sock_type);
+            self::$instance->server->set([
+                'reactor_num' => $config->reactor_num,
+                'worker_num' => $config->worker_num,
+                'backlog' => $config->backlog,
+                'max_request' => $config->max_request,
+                'dispatch_mode' => $config->dispach_mode,
+            ]);
             // 初始化服务端客户端链接
             self::$instance->connection = new RpcConnection();
             // 初始化日志模块
-            self::$instance->log = new Log(Main::SERVER_LOG_PATH, Main::DEBUG_MODE);
+            self::$instance->log = new Log($config->log, $config->debug_mode);
         }
         return self::$instance;
     }

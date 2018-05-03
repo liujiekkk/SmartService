@@ -10,7 +10,7 @@ use Common\Server\Event\EventVector;
 use Common\Server\Event\Event;
 use Common\IO\StringBuffer;
 use Common\Log\Log;
-use Config\Main;
+use Config\Client\Config;
 
 class ClientTcp extends Client 
 {
@@ -34,12 +34,12 @@ class ClientTcp extends Client
      * @param $is_sync 是否是同步客户端
      * @param $key 客户端唯一标识
      */
-    public function __construct(int $is_sync=SWOOLE_SOCK_SYNC, string $key='')
+    public function __construct(Config $config)
     {
         
-        $this->isAsync = $is_sync;
-        $this->log = new Log(Main::CLIENT_LOG_PATH, Main::DEBUG_MODE);
-        $this->client = new \swoole_client(SWOOLE_TCP, $is_sync, $key);
+        $this->isAsync = $config->async;
+        $this->log = new Log($config->log, $config->debug_mode);
+        $this->client = new \swoole_client($config->sock_type, $config->async, $config->key);
     }
     
     public function initEvent() :EventVector

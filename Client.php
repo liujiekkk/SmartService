@@ -10,7 +10,8 @@ include_once 'Autoload.php';
 Autoload::instance()->setIncludePath(__DIR__)->init();
 
 // 实例化服务
-$client = new \Common\Client\ClientTcp();
+$config = new \Config\Client\Config();
+$client = new \Common\Client\ClientTcp($config);
 
 $connection = new Common\Connection\Rpc\RpcConnection();
 $connection->setRequest(new Common\Connection\Rpc\RpcRequest());
