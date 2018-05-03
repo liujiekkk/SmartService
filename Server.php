@@ -8,8 +8,18 @@
 include_once 'Autoload.php';
 Autoload::instance()->setIncludePath(__DIR__)->init();
 
-// 额外配置
-$config = new \Conf\Server\Serv\Example();
-// 实例化服务，并且运行
-\Common\Server\ServerTcp::instance($config)->run();
-// ServerHttp::instance(Config\Main::HOST, Config\Main::PORT, $settings)->run();
+// 获取服务名称
+$params = getopt('n:');
+if ( !isset($params['n']) ) {
+    echo 'No server name input!'.PHP_EOL;
+    exit;
+}
+try {
+    $configClass = '\\Conf\\Server\\Serv\\'.ucfirst($params['n']);
+    // 实例化配置对象
+    $config = new $configClass();
+    // 实例化服务，并且运行
+    \Common\Server\ServerTcp::instance($config)->run();
+} catch (Throwable $t) {
+    echo $t->getMessage().PHP_EOL;
+}
