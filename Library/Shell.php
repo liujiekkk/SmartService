@@ -98,4 +98,30 @@ class Shell
             echo $str. PHP_EOL;
         }
     }
+    
+    /**
+     * 获取指定路径的文件列表
+     * @param string $path 文件路径
+     * @return array
+     */
+    public static function getFileList(string $path) :array 
+    {
+        if (!is_dir($path)) {
+            throw new \Exception("File path '{$path}' not exsits");
+        }
+        $handler = opendir($path);
+        $data = [];
+        while( ($filename = readdir($handler)) !== false ) {
+            // ".",".." 两个目录不需要
+            if($filename != "." && $filename != ".."){
+                $tmp = explode('.', $filename);
+                // 只要 php 类型文件
+                if (array_pop($tmp) !='php') {
+                    continue;
+                }
+                $data[] = $filename;
+            }
+        }
+        return $data;
+    }
 }
