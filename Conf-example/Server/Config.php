@@ -7,7 +7,7 @@
  */
 namespace Conf\Server;
 
-class Config {
+abstract class Config {
     
     /**
      * 是否开启debug 模式

@@ -27,6 +27,12 @@ class ClientTcp extends Client
      */
     protected $log;
     
+    protected $host;
+    
+    protected $port;
+    
+    protected $timeout;
+    
     /**
      * 初始化 Client
      * @param string $host 指定监听的IP地址
@@ -38,6 +44,9 @@ class ClientTcp extends Client
     {
         
         $this->isAsync = $config->async;
+        $this->host = $config->host;
+        $this->port = $config->port;
+        $this->timeout = $config->timeout;
         $this->log = new Log($config->log, $config->debug_mode);
         $this->client = new \swoole_client($config->sock_type, $config->async, $config->key);
     }
@@ -54,18 +63,15 @@ class ClientTcp extends Client
     
     public function access(): bool 
     {
-        $host = $this->connection->getHeader('host');
-        $port = $this->connection->getHeader('port');
-        $timout = 0.5;
         $flag = 0;
         // 异步客户端，同步客户端处理方式不一样
         if ( $this->isAsync ) {
             // 初始化客户端事件
             $events = $this->initEvent();
             $this->loadEvent($events);
-            return $this->client->connect($host, $port, $timout, $flag);
+            return $this->client->connect($this->host, $this->port, $this->timeout, $flag);
         } else {
-            if ( !$this->client->connect($host, $port, $timout, $flag) ) {
+            if ( !$this->client->connect($this->host, $this->port, $this->timeout, $flag) ) {
                 $this->log->error('Connect failed.');
             } else {
                 self::$clients[$this->client->sock] = $this->client;

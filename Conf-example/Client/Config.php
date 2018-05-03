@@ -7,7 +7,7 @@
  */
 namespace Conf\Client;
 
-class Config
+abstract class Config
 {
     
     /**
@@ -15,6 +15,19 @@ class Config
      * @var bool
      */
     public $debug_mode = true;
+    
+    /**
+     * 参数用来指定监听的ip地址，如127.0.0.1，或者外网地址，或者0.0.0.0监听全部地址
+     * @var string
+     */
+    public $host = '127.0.0.1';
+    
+    /**
+     * 监听的端口，如 9999
+     * 监听小于1024端口需要root权限
+     * @var int
+     */
+    public $port = 9999;
     
     /**
      * 服务端日志存储路径
@@ -41,5 +54,11 @@ class Config
      * @var string
      */
     public $key = '';
+    
+    /**
+     * 设置超时时间
+     * @var float
+     */
+    public $timeout = 0.6;
 }
 

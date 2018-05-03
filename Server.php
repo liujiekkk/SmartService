@@ -9,7 +9,7 @@ include_once 'Autoload.php';
 Autoload::instance()->setIncludePath(__DIR__)->init();
 
 // 额外配置
-$config = new \Conf\Server\Config();
+$config = new \Conf\Server\Serv\Example();
 // 实例化服务，并且运行
 \Common\Server\ServerTcp::instance($config)->run();
 // ServerHttp::instance(Config\Main::HOST, Config\Main::PORT, $settings)->run();
