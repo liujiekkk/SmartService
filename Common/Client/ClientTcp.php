@@ -73,6 +73,7 @@ class ClientTcp extends Client
         } else {
             if ( !$this->client->connect($this->host, $this->port, $this->timeout, $flag) ) {
                 $this->log->error('Connect failed.');
+                return false;
             } else {
                 self::$clients[$this->client->sock] = $this->client;
             }
