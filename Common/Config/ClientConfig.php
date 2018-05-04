@@ -61,9 +61,19 @@ abstract class ClientConfig
      */
     public $timeout = 0.6;
     
+    /**
+     * 获取服务名称
+     * @return string
+     */
     public function getName(): string 
     {
-        return __CLASS__;
+        $classPath = get_called_class();
+        $pos = strrpos($classPath, '\\');
+		if ( $pos ) {
+		    return substr($classPath, $pos+1);
+		} else {
+            return $classPath;		    
+		}
     }
 }
 

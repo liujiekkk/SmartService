@@ -48,8 +48,9 @@ class ServerRpc extends Server {
      */
     public function onStart() 
     {
+        $serverName = $this->config->getName();
         // 设置 master 进程名称
-        if ( !cli_set_process_title('Swoole master') ) {
+        if ( !cli_set_process_title("Smart-{$serverName} master") ) {
             $this->log->warning('Can not set process title');
             return;
         }
@@ -60,8 +61,9 @@ class ServerRpc extends Server {
      */
     public function onManagerStart()
     {
+        $serverName = $this->config->getName();
         // 设置 manager 进程名称
-        if ( !cli_set_process_title('Swoole manager') ) {
+        if ( !cli_set_process_title("Smart-{$serverName} manager") ) {
             $this->log->warning('Can not set process title');
             return;
         }
@@ -72,8 +74,9 @@ class ServerRpc extends Server {
      */
     public function onWorkerStart($serv, $workerId)
     {
+        $serverName = $this->config->getName();
         // 设置 worker 进程名称
-        if ( !cli_set_process_title('Swoole worker') ) {
+        if ( !cli_set_process_title("Smart-{$serverName} worker") ) {
             $this->log->warning('Can not set process title');
             return;
         }
