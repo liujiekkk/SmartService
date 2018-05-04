@@ -12,7 +12,7 @@ use Common\IO\StringBuffer;
 use Common\Log\Log;
 use Conf\Client\Config;
 
-class ClientTcp extends Client 
+class ClientRpc extends Client 
 {
     
     /**

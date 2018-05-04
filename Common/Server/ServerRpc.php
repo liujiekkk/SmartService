@@ -13,42 +13,17 @@ use Common\IO\StringBuffer;
 use Common\Connection\Rpc\RpcConnection;
 use Common\Connection\Rpc\RpcRequest;
 use Common\Connection\Rpc\RpcResponse;
-use Common\Log\Log;
-use Conf\Server\Config;
+use Common\Connection\Connection;
 
-class ServerTcp extends Server {
+class ServerRpc extends Server {
     
     /**
-     * 日志模块
-     * @var Log
+     * 
+     * @return Connection
      */
-    protected $log;
-    
-    /**
-     * 初始化 Server
-     * @param Config $config 服务端配置项
-     */
-    public static function instance(Config $config) :Server
+    protected function initConnection(): Connection 
     {
-        if ( !self::$instance ) {
-            
-            self::$instance = new static();
-            // 多进程模式：SWOOLE_PROCESS 基础模式：SWOOLE_BASE
-            self::$instance->server = new \swoole_server($config->host, $config->port, $config->mode, $config->sock_type);
-            self::$instance->server->set([
-                'reactor_num' => $config->reactor_num,
-                'worker_num' => $config->worker_num,
-                'backlog' => $config->backlog,
-                'max_request' => $config->max_request,
-                'dispatch_mode' => $config->dispach_mode,
-                'daemonize' => $config->daemonize
-            ]);
-            // 初始化服务端客户端链接
-            self::$instance->connection = new RpcConnection();
-            // 初始化日志模块
-            self::$instance->log = new Log($config->log, $config->debug_mode);
-        }
-        return self::$instance;
+        return new RpcConnection();
     }
     
     /**

@@ -9,17 +9,20 @@ include_once 'Autoload.php';
 Autoload::instance()->setIncludePath(__DIR__)->init();
 
 // 获取服务名称
-$params = getopt('n:');
+$params = getopt('s:n:');
+if ( !isset($params['s']) ) {
+    echo 'No signal input!'.PHP_EOL;
+    exit;
+}
+$signals = ['start', 'stop', 'reload', 'restart'];
+if ( !in_array($params['s'], $signals)) {
+    echo 'Error signal.'.PHP_EOL;
+    exit;
+}
 if ( !isset($params['n']) ) {
     echo 'No server name input!'.PHP_EOL;
     exit;
 }
-try {
-    $configClass = '\\Conf\\Server\\Serv\\'.ucfirst($params['n']);
-    // 实例化配置对象
-    $config = new $configClass();
-    // 实例化服务，并且运行
-    \Common\Server\ServerTcp::instance($config)->run();
-} catch (Throwable $t) {
-    echo $t->getMessage().PHP_EOL;
-}
+$manager = new Common\Server\ServerManager();
+$manager->{$params['s']}($params['n']);
+

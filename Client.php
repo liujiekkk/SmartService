@@ -11,7 +11,7 @@ Autoload::instance()->setIncludePath(__DIR__)->init();
 
 // 实例化服务
 $config = new \Conf\Client\Serv\Example();
-$client = new \Common\Client\ClientTcp($config);
+$client = new \Common\Client\ClientRpc($config);
 
 $connection = new Common\Connection\Rpc\RpcConnection();
 $connection->setRequest(new Common\Connection\Rpc\RpcRequest());

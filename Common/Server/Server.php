@@ -9,6 +9,7 @@ namespace Common\Server;
 
 use Common\Server\Event\EventVector;
 use Common\Connection\Connection;
+use Common\Log\Log;
 use Conf\Server\Config;
 
 abstract class Server {
@@ -32,6 +33,18 @@ abstract class Server {
     protected $server;
     
     /**
+     * 日志模块
+     * @var Log
+     */
+    protected $log;
+    
+    /**
+     * 服务端配置
+     * @var Config
+     */
+    protected $config;
+    
+    /**
      * 构造函数私有化
      */
     protected function __construct() {}
@@ -45,7 +58,34 @@ abstract class Server {
      * @param Config $config 服务端配置项
      * @return Server
      */
-    abstract public static function instance(Config $config) :Server;
+    public static function instance(Config $config) :Server
+    {
+        if ( !self::$instance ) {
+            self::$instance = new static();
+            self::$instance->config = $config;
+            // 多进程模式：SWOOLE_PROCESS 基础模式：SWOOLE_BASE
+            self::$instance->server = new \swoole_server($config->host, $config->port, $config->mode, $config->sock_type);
+            self::$instance->server->set([
+                'reactor_num' => $config->reactor_num,
+                'worker_num' => $config->worker_num,
+                'backlog' => $config->backlog,
+                'max_request' => $config->max_request,
+                'dispatch_mode' => $config->dispach_mode,
+                'daemonize' => $config->daemonize
+            ]);
+            // 初始化日志模块
+            self::$instance->log = new Log($config->log, $config->debug_mode);
+            // 初始化服务端客户端链接
+            self::$instance->connection = self::$instance->initConnection();
+        }
+        return self::$instance;
+    }
+    
+    /**
+     * 初始化与客户端的链接对象
+     * @return Connection
+     */
+    abstract protected function initConnection(): Connection;
     
     /**
      * 初始化默认事件
@@ -220,10 +260,15 @@ abstract class Server {
      * @param $onlyReloadTaskworker 是否仅重启task进程
      * @return Server
      */
-    public function reload(bool $onlyReloadTaskworker = false) :Server
+    public function reload(bool $onlyReloadTaskworker = false) :bool
     {
-        $this->server->reload($onlyReloadTaskworker);
-        return $this;
+        if ( $this->server->reload($onlyReloadTaskworker) ) {
+            $this->log->info('Server reload success.');
+            return true;
+        } else {
+            $this->log->warning('Server reload fail.');
+            return false;
+        }
     }
     
     /**
@@ -232,6 +277,7 @@ abstract class Server {
     public function shutdown() 
     {
         $this->server->shutdown();
+        $this->log->info('Server has been shutdown.');
     }
     
     /**
