@@ -289,6 +289,7 @@ abstract class Server {
         // 加载服务端响应事件
         $events = $this->initEvent();
         $this->loadEvent($events);
+        $this->log->info('Server start run.');
         return $this->server->start();
     }
 }
