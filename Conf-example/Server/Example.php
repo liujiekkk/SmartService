@@ -5,11 +5,11 @@
  * @date 2018年5月3日
  * @time 下午1:22:40
  */
-namespace Conf\Client\Serv;
+namespace Conf\Server;
 
-use Conf\Client\Config;
+use Common\Config\ServerConfig;
 
-class Example extends Config
+class Example extends ServerConfig
 {
     /**
      * 是否开启debug 模式
@@ -35,5 +35,11 @@ class Example extends Config
      * @var int
      */
     public $port = 9999;
+    
+    /**
+     * 是否以守护进程方式运行
+     * @var int
+     */
+    public $daemonize = 0;
 }
 

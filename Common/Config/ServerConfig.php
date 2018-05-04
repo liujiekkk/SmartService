@@ -5,9 +5,9 @@
  * @date 2018年2月13日
  * @time 下午3:12:05
  */
-namespace Conf\Server;
+namespace Common\Config;
 
-abstract class Config {
+abstract class ServerConfig {
     
     /**
      * 是否开启debug 模式
@@ -97,4 +97,9 @@ abstract class Config {
             'path' => 'Common/Connection/Rpc',
         ],
     ];
+    
+    public function getName(): string 
+    {
+        return get_called_class();
+    }
 }

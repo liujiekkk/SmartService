@@ -5,9 +5,9 @@
  * @date 2018年5月3日
  * @time 上午10:19:14
  */
-namespace Conf\Client;
+namespace Common\Config;
 
-abstract class Config
+abstract class ClientConfig
 {
     
     /**
@@ -60,5 +60,10 @@ abstract class Config
      * @var float
      */
     public $timeout = 0.6;
+    
+    public function getName(): string 
+    {
+        return __CLASS__;
+    }
 }
 

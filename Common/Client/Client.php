@@ -8,7 +8,7 @@
 namespace Common\Client;
 use Common\Server\Event\EventVector;
 use Common\Connection\Connection;
-use Conf\Client\Config;
+use Common\Config\ClientConfig;
 
 abstract class Client 
 {
@@ -32,9 +32,9 @@ abstract class Client
     
     /**
      * 创建一个客户端实例
-     * @param Config $config 配置文件项目
+     * @param ClientConfig $config 配置文件项目
      */
-    abstract public function __construct(Config $config);
+    abstract public function __construct(ClientConfig $config);
     
     /**
      * 初始化服务事件

@@ -9,8 +9,9 @@ namespace Common\Server;
 
 use Common\Server\Event\EventVector;
 use Common\Connection\Connection;
+use Common\Config\ServerConfig;
 use Common\Log\Log;
-use Conf\Server\Config;
+
 
 abstract class Server {
     
@@ -55,10 +56,10 @@ abstract class Server {
     
     /**
      * 实例化 server 对象
-     * @param Config $config 服务端配置项
+     * @param ServerConfig $config 服务端配置项
      * @return Server
      */
-    public static function instance(Config $config) :Server
+    public static function instance(ServerConfig $config) :Server
     {
         if ( !self::$instance ) {
             self::$instance = new static();

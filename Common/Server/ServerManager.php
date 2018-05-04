@@ -6,21 +6,21 @@
  * @time 上午9:29:29
  */
 namespace Common\Server;
-use Conf\Server\Config as ServerConfig;
-use Conf\Client\Config as ClientConfig;
+use Common\Config\ServerConfig;
+use Common\Config\ClientConfig;
 
 class ServerManager
 {
     protected function getServerConfig(string $serverName): ServerConfig 
     {
-        $configClass = '\\Conf\\Server\\Serv\\'.ucfirst($serverName);
+        $configClass = '\\Conf\\Server\\'.ucfirst($serverName);
         // 实例化配置对象
         return new $configClass();
     }
     
     protected function getClientConfig(string $serverName): ClientConfig 
     {
-        $configClass = '\\Conf\\Client\\Serv\\'.ucfirst($serverName);
+        $configClass = '\\Conf\\Client\\'.ucfirst($serverName);
         // 实例化配置对象
         return new $configClass();
     }

@@ -5,11 +5,11 @@
  * @date 2018年5月3日
  * @time 下午1:22:40
  */
-namespace Conf\Server\Serv;
+namespace Conf\Client;
 
-use Conf\Server\Config;
+use Common\Config\ClientConfig;
 
-class Example extends Config
+class Example extends ClientConfig
 {
     /**
      * 是否开启debug 模式

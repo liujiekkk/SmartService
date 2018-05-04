@@ -9,8 +9,9 @@ namespace Common\Client;
 use Common\Server\Event\EventVector;
 use Common\Server\Event\Event;
 use Common\IO\StringBuffer;
+use Common\Config\ClientConfig;
 use Common\Log\Log;
-use Conf\Client\Config;
+
 
 class ClientRpc extends Client 
 {
@@ -35,12 +36,9 @@ class ClientRpc extends Client
     
     /**
      * 初始化 Client
-     * @param string $host 指定监听的IP地址
-     * @param int $port 监听端口号
-     * @param $is_sync 是否是同步客户端
-     * @param $key 客户端唯一标识
+     * @param ClientConfig $config 配置文件对象
      */
-    public function __construct(Config $config)
+    public function __construct(ClientConfig $config)
     {
         
         $this->isAsync = $config->async;
