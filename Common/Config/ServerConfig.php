@@ -34,6 +34,12 @@ abstract class ServerConfig {
      */
     public $port = 9999;
     
+    /**
+     * 用来存储业务逻辑代码路径
+     * @var string
+     */
+    public $path = '';
+    
     public $mode = SWOOLE_PROCESS;
     
     public $sock_type = SWOOLE_SOCK_TCP;

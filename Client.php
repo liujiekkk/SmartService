@@ -20,7 +20,7 @@ $connection->setRequest(new Common\Connection\Rpc\RpcRequest());
 // $connection->setData(['class'=>'test', 'method'=>'reload', 'params'=>[rand(0,1000),'b']]);
 // 业务代码
 $connection->setHeader('type', 'user'); // 设置调用类型为用户自定义
-$connection->setData(['class'=>'test', 'method'=>'getParam', 'params'=>[rand(0,1000),'b']]);
+$connection->setData(['class'=>'Test\Test', 'method'=>'say', 'params'=>[]]);
 $client->setConnection($connection);
 $client->access();
 $res = $client->getConnection()->getResponse();

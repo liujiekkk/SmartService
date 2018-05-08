@@ -15,7 +15,7 @@ class Example extends ServerConfig
      * 是否开启debug 模式
      * @var bool
      */
-    public $debug_mode = true;
+    public $debug_mode = false;
     
     /**
      * 服务端日志存储路径
@@ -37,9 +37,16 @@ class Example extends ServerConfig
     public $port = 9999;
     
     /**
+     * 业务代码路径
+     * @var string
+     */
+    public $path = '/data/projects/service_test';
+    
+    /**
      * 是否以守护进程方式运行
      * @var int
      */
-    public $daemonize = 0;
+    public $daemonize = 1;
+    
 }
 

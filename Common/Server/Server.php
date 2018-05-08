@@ -11,6 +11,7 @@ use Common\Server\Event\EventVector;
 use Common\Connection\Connection;
 use Common\Config\ServerConfig;
 use Common\Log\Log;
+use Library\Format\Path;
 
 
 abstract class Server {
@@ -78,6 +79,9 @@ abstract class Server {
             self::$instance->log = new Log($config->log, $config->debug_mode);
             // 初始化服务端客户端链接
             self::$instance->connection = self::$instance->initConnection();
+            // 初始化业务代码
+            $codePath = $config->path ? $config->path : Path::format(__DIR__. '/../../../');
+            \Autoload::instance()->setIncludePath($codePath);
         }
         return self::$instance;
     }
@@ -108,7 +112,7 @@ abstract class Server {
      * 设置
      * @param array $settings swoole_server运行时的各项参数
      */
-    public function set(array $settings) :Server 
+    protected function set(array $settings) :Server 
     {
         $this->server->set($settings);
         return $this;
