@@ -44,14 +44,13 @@ class RpcConnection extends Connection
         if ( $this->request ) {
             // 解析请数据
             $this->request->setHeader('type', $jsonRpc->getMethod());
-            $this->request->setData($jsonRpc->getParams());
+            $this->request->setRequestBody($jsonRpc->getParams());
         } else {
             // 解析响应数据
             $jsonRpc->decode($str);
             $this->response->setHeader('code', $jsonRpc->getCode());
             $this->response->setHeader('msg', $jsonRpc->getMessage());
             $this->response->setResponseBody($jsonRpc->getResult());
-            $this->response->setData($jsonRpc->getResult());
         }
     }
 }

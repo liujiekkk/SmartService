@@ -24,4 +24,9 @@ $connection->setData(['class'=>'Test\Test', 'method'=>'say', 'params'=>[]]);
 $client->setConnection($connection);
 $client->access();
 $res = $client->getConnection()->getResponse();
-var_dump($res->getData());
+$data = [
+    'code' => $res->getHeader('code'),
+    'msg' => $res->getHeader('msg'),
+    'data' => $res->getResponseBody()
+];
+var_dump($data);
