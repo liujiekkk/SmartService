@@ -6,26 +6,26 @@
  * @time 上午10:14:12
  */
 namespace Common\Server\Manager;
+use Common\Config\ServerConfig;
+use Common\Config\ClientConfig;
+
 class RpcManager extends Manager
 {
-
     /**
      * 启动所有服务
      */
-    public function start(string $serverName): bool
+    public function start(): bool
     {
-        $config = $this->getServerConfig($serverName);
         // 实例化服务，并且运行
-        return \Common\Server\ServerRpc::instance($config)->run();
+        return \Common\Server\ServerRpc::instance($this->serverConfig)->run();
     }
     
     /**
      * 停止所有服务
      */
-    public function stop(string $serverName): bool
+    public function stop(): bool
     {
-        $config = $this->getClientConfig($serverName);
-        $client = new \Common\Client\ClientRpc($config);
+        $client = new \Common\Client\ClientRpc($this->clientConfig);
         $connection = new \Common\Connection\Rpc\RpcConnection();
         $connection->setRequest(new \Common\Connection\Rpc\RpcRequest());
         // 系统命令
@@ -38,10 +38,9 @@ class RpcManager extends Manager
     /**
      * 平滑重启所有服务（不停机）
      */
-    public function reload(string $serverName): bool
+    public function reload(): bool
     {
-        $config = $this->getClientConfig($serverName);
-        $client = new \Common\Client\ClientRpc($config);
+        $client = new \Common\Client\ClientRpc($this->clientConfig);
         $connection = new \Common\Connection\Rpc\RpcConnection();
         $connection->setRequest(new \Common\Connection\Rpc\RpcRequest());
         // 系统命令
@@ -55,13 +54,13 @@ class RpcManager extends Manager
      * 重启所有服务
      * @param string $serverName 服务名称
      */
-    public function restart(string $serverName): bool
+    public function restart(): bool
     {
-        if ( !$this->stop($serverName) ) {
-            echo 'stop server '.$serverName.PHP_EOL;
+        if ( !$this->stop() ) {
+            return false;
         }
         usleep(1000);
-        return $this->start($serverName);
+        return $this->start();
     }
 }
 

@@ -7,27 +7,8 @@
  */
 namespace Common\Config;
 
-abstract class ClientConfig
+abstract class ClientConfig extends AbstractConfig
 {
-    
-    /**
-     * 是否开启debug 模式
-     * @var bool
-     */
-    public $debug_mode = true;
-    
-    /**
-     * 参数用来指定监听的ip地址，如127.0.0.1，或者外网地址，或者0.0.0.0监听全部地址
-     * @var string
-     */
-    public $host = '127.0.0.1';
-    
-    /**
-     * 监听的端口，如 9999
-     * 监听小于1024端口需要root权限
-     * @var int
-     */
-    public $port = 9999;
     
     /**
      * 服务端日志存储路径
@@ -61,19 +42,5 @@ abstract class ClientConfig
      */
     public $timeout = 0.6;
     
-    /**
-     * 获取服务名称
-     * @return string
-     */
-    public function getName(): string 
-    {
-        $classPath = get_called_class();
-        $pos = strrpos($classPath, '\\');
-		if ( $pos ) {
-		    return substr($classPath, $pos+1);
-		} else {
-            return $classPath;		    
-		}
-    }
 }
 
