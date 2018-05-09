@@ -23,6 +23,6 @@ if ( !isset($params['n']) ) {
     echo 'No server name input!'.PHP_EOL;
     exit;
 }
-$manager = new Common\Server\ServerManager();
+$manager = new Common\Server\Manager\RpcManager();
 $manager->{$params['s']}($params['n']);
 

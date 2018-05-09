@@ -40,7 +40,7 @@ class SmartService
      * @param string $serverName 服务名称
      */
     protected function fork(string $signal, string $serverName) {
-        $process = new SwooleProcess(function (\swoole_process $worker) use ($signal, $serverName){
+        $process = new SwooleProcess(function ( $worker ) use ($signal, $serverName){
             // 启动单个 Server 进程
             $phpBin = '/usr/local/php7/bin/php';
             $params = [__DIR__.'/Server.php', '-s', $signal, '-n', $serverName];

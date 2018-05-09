@@ -1,30 +1,14 @@
 <?php
 /**
- * 服务管理器
+ * Rpc 服务管理器
  * @author liujie <king.2oo8@163.com>
- * @date 2018年5月4日
- * @time 上午9:29:29
+ * @date 2018年5月9日
+ * @time 上午10:14:12
  */
-namespace Common\Server;
-use Common\Config\ServerConfig;
-use Common\Config\ClientConfig;
-
-class ServerManager
+namespace Common\Server\Manager;
+class RpcManager extends Manager
 {
-    protected function getServerConfig(string $serverName): ServerConfig 
-    {
-        $configClass = '\\Conf\\Server\\'.ucfirst($serverName);
-        // 实例化配置对象
-        return new $configClass();
-    }
-    
-    protected function getClientConfig(string $serverName): ClientConfig 
-    {
-        $configClass = '\\Conf\\Client\\'.ucfirst($serverName);
-        // 实例化配置对象
-        return new $configClass();
-    }
-    
+
     /**
      * 启动所有服务
      */
