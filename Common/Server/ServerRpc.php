@@ -18,6 +18,16 @@ use Common\Connection\Connection;
 class ServerRpc extends Server {
     
     /**
+     * 初始化各种数据库单例
+     * {@inheritDoc}
+     * @see \Common\Server\Server::initDb()
+     */
+    protected function initDb() 
+    {
+        
+    }
+    
+    /**
      * 
      * @return Connection
      */
