@@ -79,12 +79,19 @@ abstract class Server {
             self::$instance->log = new Log($config->log, $config->debug_mode);
             // 初始化服务端客户端链接
             self::$instance->connection = self::$instance->initConnection();
+            // 初始化数据库
+            self::$instance->initDb();
             // 初始化业务代码
             $codePath = $config->path ? $config->path : Path::format(__DIR__. '/../../../');
             \Autoload::instance()->setIncludePath($codePath);
         }
         return self::$instance;
     }
+    
+    /**
+     * 初始化数据库
+     */
+    abstract protected function initDb();
     
     /**
      * 初始化与客户端的链接对象
