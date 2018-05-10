@@ -26,7 +26,8 @@ $client->access();
 $res = $client->getConnection()->getResponse();
 $data = [
     'code' => $res->getHeader('code'),
-    'msg' => $res->getHeader('msg'),
+    'msg' => $res->getHeader('message'),
+    'err' => $res->getHeader('error'),
     'data' => $res->getResponseBody()
 ];
 var_dump($data);

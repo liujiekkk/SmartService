@@ -43,34 +43,31 @@ class Log implements ILog
 
     public function debug(string $info)
     {
+        $str = $this->getFormatLineData($info, self::LOG_TYPE_DEBUG);
         if ( $this->debug ) {
-            $colorStr = $this->shell->colorFont(self::LOG_TYPE_DEBUG, Shell::COLOR_PINK);
-            $str = $this->getFormatLineData($info, $colorStr);
-            $this->shell->println($str);
+            $this->shell->println($str, self::LOG_TYPE_DEBUG, Shell::COLOR_NORMAL);
         } else {
-            $this->writeToLogFile($this->filePath, $info);
+            $this->writeToLogFile($this->filePath, $str);
         }
     }
 
     public function warning(string $info)
     {
+        $str = $this->getFormatLineData($info, self::LOG_TYPE_WARNING);
         if ( $this->debug ) {
-            $colorStr = $this->shell->colorFont(self::LOG_TYPE_WARNING, Shell::COLOR_YELLOW);
-            $str = $this->getFormatLineData($info, $colorStr);
-            $this->shell->println($str);
+            $this->shell->println($str, self::LOG_TYPE_WARNING, Shell::COLOR_YELLOW);
         } else {
-            $this->writeToLogFile($this->filePath, $info);
+            $this->writeToLogFile($this->filePath, $str);
         }
     }
 
     public function error(string $info)
     {
+        $str = $this->getFormatLineData($info, self::LOG_TYPE_ERROR);
         if ( $this->debug ) {
-            $colorStr = $this->shell->colorFont(self::LOG_TYPE_ERROR, Shell::COLOR_RED);
-            $str = $this->getFormatLineData($info, $colorStr);
-            $this->shell->println($str);
+            $this->shell->println($str, self::LOG_TYPE_ERROR, Shell::COLOR_RED);
         } else {
-            $this->writeToLogFile($this->filePath, $info);
+            $this->writeToLogFile($this->filePath, $str);
         }
     }
 
@@ -80,8 +77,18 @@ class Log implements ILog
         if ( $this->debug ) {
             $this->shell->println($str, self::LOG_TYPE_INFO, Shell::COLOR_GREEN);
         } else {
-            $this->writeToLogFile($this->filePath, $info);
+            $this->writeToLogFile($this->filePath, $str);
         }
+    }
+    
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \Common\Log\ILog::format($t)
+     */
+    public function format(\Throwable $t):string 
+    {
+        return $t->getFile().'('.$t->getLine().'): '.$t->getMessage();
     }
     
     protected function getFormatLineData(string $info, string $logType): string 

@@ -111,13 +111,13 @@ class ServerRpc extends Server {
             $result = $class->execute($this, $params);
         } catch (\Throwable $t) {
             // 写入错误日志
-            $this->log->error($t->getMessage());
+            $errMsg = $this->log->format($t);
+            $this->log->error($errMsg);
             // 创建响应
             $this->connection->setResponse(new RpcResponse());
             $this->connection->setHeader('code', 100000000);
-            $this->connection->setHeader('error', '');
             $this->connection->setHeader('message', '服务器异常');
-            $this->connection->setHeader('data', $t->getMessage());
+            $this->connection->setHeader('error', $errMsg);
             $this->connection->setData([]);
             $this->connection->writeBuffer($buffer);
             $serv->send($fd, $buffer->read());
@@ -128,9 +128,8 @@ class ServerRpc extends Server {
         // 创建响应
         $this->connection->setResponse(new RpcResponse());
         $this->connection->setHeader('code', 0);
-        $this->connection->setHeader('error', '');
         $this->connection->setHeader('message', '成功');
-        $this->connection->setHeader('data', '');
+        $this->connection->setHeader('error', '');
         $this->connection->setData($result);
         $this->connection->writeBuffer($buffer);
         // 将处理结果返回给客户端

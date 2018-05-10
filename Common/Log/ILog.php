@@ -32,5 +32,13 @@ interface ILog
      * @param string $info
      */
     public function error(string $info);
+    
+    /**
+     * 格式化输出信息
+     * @param \Throwable $t
+     * @return string
+     */
+    public function format(\Throwable $t): string;
+    
 }
 

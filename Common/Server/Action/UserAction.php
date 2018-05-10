@@ -14,17 +14,13 @@ class UserAction extends Action
 
     public function execute(Server $server, array $params): array
     {
-        try {
-            // 业务类位置
-            $className = '\\'.ucfirst($params['class']);
-            $classObj = new $className();
-            $reflectionClass = new \ReflectionClass($className);
-            $reflectionMethod = $reflectionClass->getMethod($params['method']);
-            $data = $reflectionMethod->invokeArgs($classObj, $params['params']);
-            return [$data];
-        } catch (\Throwable $t) {
-            throw new \Exception(__METHOD__.' '. $t->getMessage());
-        }
+        // 业务类位置
+        $className = '\\'.ucfirst($params['class']);
+        $classObj = new $className();
+        $reflectionClass = new \ReflectionClass($className);
+        $reflectionMethod = $reflectionClass->getMethod($params['method']);
+        $data = $reflectionMethod->invokeArgs($classObj, $params['params']);
+        return [$data];
     }
 }
 

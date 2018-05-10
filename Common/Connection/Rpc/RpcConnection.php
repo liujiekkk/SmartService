@@ -28,8 +28,8 @@ class RpcConnection extends Connection
             $jsonRpc->setCode($this->response->getHeader('code'));
             $jsonRpc->setMessage($this->response->getHeader('message'));
             $jsonRpc->setError($this->response->getHeader('error'));
-            $jsonRpc->setResult($this->response->getData());
-            $jsonRpc->setData($this->response->getHeader('data'));
+            $jsonRpc->setResult('');
+            $jsonRpc->setData($this->response->getResponseBody());
             // 默认值
             $jsonRpc->setMethod('');
             $jsonRpc->setParams([]);
@@ -49,8 +49,9 @@ class RpcConnection extends Connection
             // 解析响应数据
             $jsonRpc->decode($str);
             $this->response->setHeader('code', $jsonRpc->getCode());
-            $this->response->setHeader('msg', $jsonRpc->getMessage());
-            $this->response->setResponseBody($jsonRpc->getResult());
+            $this->response->setHeader('message', $jsonRpc->getMessage());
+            $this->response->setHeader('error', $jsonRpc->getError());
+            $this->response->setResponseBody($jsonRpc->getData());
         }
     }
 }

@@ -26,6 +26,9 @@ class SerilizeUtil
      */
     public static function unserilize(string $str): array
     {
+        if ( empty($str) ) {
+            return [];
+        }
         $data = json_decode($str, true);
         if ( json_last_error() ) {
             throw new \Exception('SerilizeUtil unserilize data exception:'. $str );
