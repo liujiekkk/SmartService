@@ -19,7 +19,7 @@ class SystemAction extends Action
         $reflectionClass = new \ReflectionClass($className);
         $reflectionMethod = $reflectionClass->getMethod($params['method']);
         $data = $reflectionMethod->invokeArgs($server, $params['params']);
-        return [$data];
+        return ['result' => $data];
     }
 }
 
