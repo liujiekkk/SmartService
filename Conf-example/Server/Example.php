@@ -48,5 +48,16 @@ class Example extends ServerConfig
      */
     public $daemonize = 1;
     
+    /**
+     * mysql 配置
+     * @var array
+     */
+//     public $mysql = [
+//         'dsn' => 'mysql:host=127.0.0.1;port=3306;dbname=test;charset=utf8mb4',
+//         'user' => 'root',
+//         'pass' => '',
+//         'persistent' => true
+//     ];
+    
 }
 
