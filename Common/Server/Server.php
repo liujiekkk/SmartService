@@ -42,7 +42,7 @@ abstract class Server {
     
     /**
      * 服务端配置
-     * @var Config
+     * @var ServerConfig
      */
     protected $config;
     

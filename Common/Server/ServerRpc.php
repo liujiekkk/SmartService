@@ -14,6 +14,7 @@ use Common\Connection\Rpc\RpcConnection;
 use Common\Connection\Rpc\RpcRequest;
 use Common\Connection\Rpc\RpcResponse;
 use Common\Connection\Connection;
+use Common\IO\Db\Mysql;
 
 class ServerRpc extends Server {
     
@@ -24,7 +25,10 @@ class ServerRpc extends Server {
      */
     protected function initDb() 
     {
-        
+        if ( $this->config->mysql ) {
+            // 初始化 mysql
+            $db = Mysql::instance($this->config->mysql);
+        }
     }
     
     /**
