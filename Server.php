@@ -10,7 +10,10 @@ use Common\Config\ClientConfig;
 use Common\Server\Manager\Manager;
 
 include_once 'Autoload.php';
-Autoload::instance()->setIncludePath(__DIR__)->init();
+Autoload::instance()
+    ->setIncludePath(__DIR__)
+    ->setIncludePath(__DIR__.'/Vendors')
+    ->init();
 
 class ManagerFactory 
 {
