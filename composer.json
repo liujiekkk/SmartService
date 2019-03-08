@@ -1,0 +1,11 @@
+{
+    "name": "liujie/smart-service",
+	"description": "Simple rpc framework which is based on Swoole.",
+    "authors": [
+        {
+            "name": "刘杰",
+            "email": "liu.jie@kepuchina.org.cn"
+        }
+    ],
+    "require": {}
+}
