@@ -64,7 +64,7 @@ class ServerRpc extends Server {
     {
         $serverName = $this->config->getName();
         // 设置 master 进程名称
-        if ( !cli_set_process_title("Smart-{$serverName} master") ) {
+        if ( !cli_set_process_title("[php] Smart-{$serverName} master") ) {
             $this->log->warning('Can not set process title');
             return;
         }
@@ -77,7 +77,7 @@ class ServerRpc extends Server {
     {
         $serverName = $this->config->getName();
         // 设置 manager 进程名称
-        if ( !cli_set_process_title("Smart-{$serverName} manager") ) {
+        if ( !cli_set_process_title("[php] Smart-{$serverName} manager") ) {
             $this->log->warning('Can not set process title');
             return;
         }
@@ -90,7 +90,7 @@ class ServerRpc extends Server {
     {
         $serverName = $this->config->getName();
         // 设置 worker 进程名称
-        if ( !cli_set_process_title("Smart-{$serverName} worker") ) {
+        if ( !cli_set_process_title("[php] Smart-{$serverName} worker") ) {
             $this->log->warning('Can not set process title');
             return;
         }
