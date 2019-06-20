@@ -11,6 +11,14 @@ use Common\Server\Event\Event;
 use Common\IO\StringBuffer;
 use Common\Config\ClientConfig;
 use Common\Log\Log;
+use Common\Protocol\JsonRpc\JsonRpc;
+use Common\CallFactory\JsonRpcFactory;
+use Common\Protocol\FrameWriter;
+use Common\Protocol\Buffer;
+use Common\Protocol\FrameReader;
+use Common\Protocol\JsonRpc\JsonRequest;
+use Common\Protocol\DataFrame;
+use Common\Protocol\JsonRpc\JsonResponse;
 
 
 class ClientRpc extends Client 
@@ -35,6 +43,30 @@ class ClientRpc extends Client
     protected $timeout;
     
     protected $config;
+    
+    /**
+     * 
+     * @var Buffer
+     */
+    protected $bufferWriter;
+    
+    /**
+     * 
+     * @var Buffer
+     */
+    protected $bufferReader;
+    
+    /**
+     * 
+     * @var FrameReader
+     */
+    protected $frameReader;
+    
+    /**
+     * 
+     * @var FrameWriter 
+     */
+    protected $frameWriter;
     
     /**
      * 初始化 Client
@@ -62,6 +94,10 @@ class ClientRpc extends Client
             'open_tcp_nodelay' => $this->config->open_tcp_nodelay,
         ]);
         $this->client = $client;
+        $this->bufferReader = new Buffer();
+        $this->bufferWriter = new Buffer();
+        $this->frameReader = new FrameReader();
+        $this->frameWriter = new FrameWriter();
     }
     
     public function initEvent() :EventVector
@@ -74,7 +110,12 @@ class ClientRpc extends Client
         return $events;
     }
     
-    public function access(): bool 
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \Common\Client\Client::request()
+     */
+    public function request(string $class, string $method, array $params = [], $action='user'): array
     {
         $flag = 0;
         // 异步客户端，同步客户端处理方式不一样
@@ -90,37 +131,42 @@ class ClientRpc extends Client
             } else {
                 self::$clients[$this->client->sock] = $this->client;
             }
+            // 准备发送数据
+            $req = new JsonRequest($class, $method, $params);
+            $req->setAction($action);
+            $str = $req->encode();
             
-            // 链接成功以后发送请求数据
-            $buffer = new StringBuffer();
-            // 写入buffer
-            $this->connection->writeBuffer($buffer);
-            $len = strlen($buffer->read());
-            $msg = pack('N4', 0, 0, $len, 0) . $buffer->read();
-            if (!$this->client->send($msg)) {
+            $length = $this->bufferWriter->getLength();
+            
+            $frame = new DataFrame(strlen($str), $str, "\n");
+            $this->frameWriter->appendFrame($frame, $this->bufferWriter);
+            $s = $this->bufferWriter->consume($this->bufferWriter->getLength());
+            if (!$this->client->send($s)) {
                 $this->log->error('Send failed.');
             }
             $data = $this->client->recv();
             if ($data === false) {
                 // 如果设置了错误的 recv $size，会导致recv超时
                 $this->log->warning('receive data time out.');
-                return $this->client->close();
+                $this->client->close();
+                return ['code' => 100000000, '服务器资源不可用', []];
             } else if ($data === '') {
                 // 当收到错误的包头或包头中长度值超过package_max_length设置时，recv会返回空字符串
                 $this->log->warning('error data header or header size is above package_max_length.');
-                return $this->client->close();
+                $this->client->close();
+                return ['code' => 100000000, '服务器资源不可用', []];
             }
             // 解析响应数据
-            $header = unpack("Ntype/Nuid/Nlen/Nserid" , $data);
-            // 包长度
-            $length = $header['len'];
-            $msg = substr($data, $this->config->package_body_offset, $length);
+            $this->bufferReader->append($data);
+            $frame = $this->frameReader->consumeFrame($this->bufferReader);
+            $jsonRpc = JsonResponse::decode($frame->getBody());
             
-            $buffer = new StringBuffer();
-            $buffer->writeTo($msg);
-            $this->connection->setResponse(new \Common\Connection\Rpc\RpcResponse());
-            $this->connection->readBuffer($buffer);
-            return $this->client->close();
+            $ret = [
+                'code' => $jsonRpc->getCode(),
+                'message' => $jsonRpc->getMessage(),
+                'data' => $jsonRpc->getData()
+            ];
+            return $ret;
         }
     }
     

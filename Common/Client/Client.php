@@ -25,12 +25,6 @@ abstract class Client
     protected static $clients;
     
     /**
-     * 链接对象实例
-     * @var Connection
-     */
-    protected $connection;
-    
-    /**
      * 创建一个客户端实例
      * @param ClientConfig $config 配置文件项目
      */
@@ -46,7 +40,7 @@ abstract class Client
      * 发送请求并且获取返回数据
      * @return bool
      */
-    abstract public function access(): bool;
+    abstract public function request(string $class, string $method, array $params = []): array;
     
     /**
      * 连接到远程服务器
@@ -176,23 +170,4 @@ abstract class Client
     {
         return $this->client->close();
     }
-    
-    /**
-     * 设置链接对象
-     * @param Connection $connection
-     */
-    public function setConnection(Connection $connection) 
-    {
-        $this->connection = $connection;
-    } 
-    
-    /**
-     * 获取链接对象
-     * @return Connection
-     */
-    public function getConnection(): Connection 
-    {
-        return $this->connection;    
-    }
-    
 }

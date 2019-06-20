@@ -26,13 +26,12 @@ class RpcManager extends Manager
     public function stop(): bool
     {
         $client = new \Common\Client\ClientRpc($this->clientConfig);
-        $connection = new \Common\Connection\Rpc\RpcConnection();
-        $connection->setRequest(new \Common\Connection\Rpc\RpcRequest());
         // 系统命令
-        $connection->setHeader('type', 'system');
-        $connection->setData(['method'=>'shutdown', 'params'=>[]]);
-        $client->setConnection($connection);
-        return $client->access();
+        $data = $client->request('', 'shutdown', [], 'system');
+        if ($data['code']) {
+            return false;
+        }
+        return true;
     }
     
     /**
@@ -41,13 +40,11 @@ class RpcManager extends Manager
     public function reload(): bool
     {
         $client = new \Common\Client\ClientRpc($this->clientConfig);
-        $connection = new \Common\Connection\Rpc\RpcConnection();
-        $connection->setRequest(new \Common\Connection\Rpc\RpcRequest());
-        // 系统命令
-        $connection->setHeader('type', 'system');
-        $connection->setData(['method'=>'reload', 'params'=>[]]);
-        $client->setConnection($connection);
-        return $client->access();
+        $data = $client->request('', 'reload', [], 'system');
+        if ($data['code']) {
+            return false;
+        }
+        return true;
     }
     
     /**

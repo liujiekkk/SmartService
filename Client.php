@@ -12,22 +12,5 @@ Autoload::instance()->setIncludePath(__DIR__)->init();
 // 实例化服务
 $config = new \Conf\Client\Example();
 $client = new \Common\Client\ClientRpc($config);
-
-$connection = new Common\Connection\Rpc\RpcConnection();
-$connection->setRequest(new Common\Connection\Rpc\RpcRequest());
-// 系统命令
-// $connection->setHeader('type', 'system');
-// $connection->setData(['class'=>'test', 'method'=>'reload', 'params'=>[rand(0,1000),'b']]);
-// 业务代码
-$connection->setHeader('type', 'user'); // 设置调用类型为用户自定义
-$connection->setData(['class'=>'Test\Test', 'method'=>'say', 'params'=>[]]);
-$client->setConnection($connection);
-$client->access();
-$res = $client->getConnection()->getResponse();
-$data = [
-    'code' => $res->getHeader('code'),
-    'msg' => $res->getHeader('message'),
-    'err' => $res->getHeader('error'),
-    'data' => $res->getResponseBody()
-];
+$data = $client->request('test\Test', 'say', ['hello']);
 var_dump($data);

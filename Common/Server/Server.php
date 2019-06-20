@@ -12,15 +12,12 @@ use Common\Connection\Connection;
 use Common\Config\ServerConfig;
 use Common\Log\Log;
 use Library\Format\Path;
+use Common\Protocol\Buffer;
+use Common\Protocol\FrameReader;
+use Common\Protocol\FrameWriter;
 
 
 abstract class Server {
-    
-    /**
-     * 服务端客户端链接
-     * @var Connection
-     */
-    protected $connection;
     
     /**
      * 存储单例对象
@@ -47,6 +44,30 @@ abstract class Server {
     protected $config;
     
     /**
+     * 
+     * @var Buffer
+     */
+    protected $bufferReader;
+    
+    /**
+     * 
+     * @var Buffer
+     */
+    protected $bufferWriter;
+    
+    /**
+     * 
+     * @var FrameReader
+     */
+    protected $frameReader;
+    
+    /**
+     * 
+     * @var FrameWriter
+     */
+    protected $frameWriter;
+    
+    /**
      * 构造函数私有化
      */
     protected function __construct() {}
@@ -64,6 +85,10 @@ abstract class Server {
     {
         if ( !self::$instance ) {
             self::$instance = new static();
+            self::$instance->bufferReader = new Buffer();
+            self::$instance->bufferWriter = new Buffer();
+            self::$instance->frameReader = new FrameReader();
+            self::$instance->frameWriter = new FrameWriter();
             self::$instance->config = $config;
             // 多进程模式：SWOOLE_PROCESS 基础模式：SWOOLE_BASE
             self::$instance->server = new \swoole_server($config->host, $config->port, $config->mode, $config->sock_type);
@@ -86,8 +111,6 @@ abstract class Server {
             ]);
             // 初始化日志模块
             self::$instance->log = new Log($config->log, $config->debug_mode);
-            // 初始化服务端客户端链接
-            self::$instance->connection = self::$instance->initConnection();
             // 初始化数据库
             self::$instance->initDb();
             // 初始化业务代码
@@ -101,12 +124,6 @@ abstract class Server {
      * 初始化数据库
      */
     abstract protected function initDb();
-    
-    /**
-     * 初始化与客户端的链接对象
-     * @return Connection
-     */
-    abstract protected function initConnection(): Connection;
     
     /**
      * 初始化默认事件
