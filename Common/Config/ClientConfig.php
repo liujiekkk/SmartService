@@ -20,7 +20,7 @@ abstract class ClientConfig extends AbstractConfig
      * soket 类型
      * @var int
      */
-    public $sock_type = SWOOLE_TCP;
+    public $sock_type = SWOOLE_TCP | SWOOLE_KEEP;
     
     /**
      * 是否是异步客户端
@@ -41,6 +41,12 @@ abstract class ClientConfig extends AbstractConfig
      * @var float
      */
     public $timeout = 0.6;
+    
+    /**
+     * 关闭 Nagle 算法
+     * @var string
+     */
+    public $open_tcp_nodelay = true;
     
 }
 

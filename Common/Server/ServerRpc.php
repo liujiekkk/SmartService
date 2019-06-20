@@ -109,8 +109,14 @@ class ServerRpc extends Server {
      */
     public function onReceive($serv, $fd, $fromId, $data) 
     {
+        // 解析协议包
+        $header = unpack("Ntype/Nuid/Nlen/Nserid" , $data);
+        // 包长度
+        $length = $header['len'];
+        $msg = substr($data, $this->config->package_body_offset, $length);
+
         $buffer = new StringBuffer();
-        $buffer->writeTo($data);
+        $buffer->writeTo($msg);
         $this->connection->setRequest(new \Common\Connection\Rpc\RpcRequest());
         $this->connection->readBuffer($buffer);
         
@@ -134,7 +140,9 @@ class ServerRpc extends Server {
             $this->connection->setHeader('error', $errMsg);
             $this->connection->setData([]);
             $this->connection->writeBuffer($buffer);
-            $serv->send($fd, $buffer->read());
+            $len = strlen($buffer->read());
+            $msg = pack('N4', 0, 0, $len, 0) . $buffer->read();
+            $serv->send($fd, $msg);
             // 关闭客户端链接
             $this->close($fd);
             return;
@@ -147,7 +155,9 @@ class ServerRpc extends Server {
         $this->connection->setData($result);
         $this->connection->writeBuffer($buffer);
         // 将处理结果返回给客户端
-        $serv->send($fd, $buffer->read());
+        $len = strlen($buffer->read());
+        $msg = pack('N4', 0, 0, $len, 0) . $buffer->read();
+        $serv->send($fd, $msg);
     }
     
     /**

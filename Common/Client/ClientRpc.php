@@ -34,19 +34,34 @@ class ClientRpc extends Client
     
     protected $timeout;
     
+    protected $config;
+    
     /**
      * 初始化 Client
      * @param ClientConfig $config 配置文件对象
      */
     public function __construct(ClientConfig $config)
     {
-        
+        $this->config = $config;
         $this->isAsync = $config->async;
         $this->host = $config->host;
         $this->port = $config->port;
         $this->timeout = $config->timeout;
         $this->log = new Log($config->log, $config->debug_mode);
-        $this->client = new \swoole_client($config->sock_type, $config->async, $config->key);
+        $client = new \swoole_client($config->sock_type, $config->async, $config->key);
+        $client->set([
+            // 自定义协议包
+            'package_max_length' => $this->config->package_max_length,
+            'package_length_type' => $this->config->package_length_type,
+            'package_length_offset' => $this->config->package_length_offset,
+            'package_body_offset' => $this->config->package_body_offset,
+//             'open_eof_split' => true,
+//             'open_eof_check' => true,
+//             'open_length_check' => true,
+//             'package_eof' => "\r\n\r\n",
+            'open_tcp_nodelay' => $this->config->open_tcp_nodelay,
+        ]);
+        $this->client = $client;
     }
     
     public function initEvent() :EventVector
@@ -80,16 +95,29 @@ class ClientRpc extends Client
             $buffer = new StringBuffer();
             // 写入buffer
             $this->connection->writeBuffer($buffer);
-            if ( !$this->client->send($buffer->read()) ) {
+            $len = strlen($buffer->read());
+            $msg = pack('N4', 0, 0, $len, 0) . $buffer->read();
+            if (!$this->client->send($msg)) {
                 $this->log->error('Send failed.');
             }
             $data = $this->client->recv();
-            if ( !$data ) {
-                $this->log->error(' Recv failed.');
+            if ($data === false) {
+                // 如果设置了错误的 recv $size，会导致recv超时
+                $this->log->warning('receive data time out.');
+                return $this->client->close();
+            } else if ($data === '') {
+                // 当收到错误的包头或包头中长度值超过package_max_length设置时，recv会返回空字符串
+                $this->log->warning('error data header or header size is above package_max_length.');
+                return $this->client->close();
             }
             // 解析响应数据
+            $header = unpack("Ntype/Nuid/Nlen/Nserid" , $data);
+            // 包长度
+            $length = $header['len'];
+            $msg = substr($data, $this->config->package_body_offset, $length);
+            
             $buffer = new StringBuffer();
-            $buffer->writeTo($data);
+            $buffer->writeTo($msg);
             $this->connection->setResponse(new \Common\Connection\Rpc\RpcResponse());
             $this->connection->readBuffer($buffer);
             return $this->client->close();

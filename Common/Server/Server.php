@@ -73,7 +73,16 @@ abstract class Server {
                 'backlog' => $config->backlog,
                 'max_request' => $config->max_request,
                 'dispatch_mode' => $config->dispach_mode,
-                'daemonize' => $config->daemonize
+                'daemonize' => $config->daemonize,
+                // 自定义协议支持
+                'package_max_length' => $config->package_max_length,
+                'package_length_type' => $config->package_length_type,
+                'package_length_offset' => $config->package_length_offset,
+                'package_body_offset' => $config->package_body_offset,
+//                 'open_length_check' => true,
+//                 'open_eof_check' => true,
+//                 'open_eof_split' => true,
+//                 'package_eof' => "\r\n\r\n"
             ]);
             // 初始化日志模块
             self::$instance->log = new Log($config->log, $config->debug_mode);

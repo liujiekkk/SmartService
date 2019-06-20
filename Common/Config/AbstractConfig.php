@@ -35,6 +35,30 @@ abstract class AbstractConfig
     public $port = 9999;
     
     /**
+     * 最大包长度
+     * @var integer
+     */
+    public $package_max_length = 81920;
+    
+    /**
+     * 包头类型
+     * @var string
+     */
+    public $package_length_type = 'N';
+    
+    /**
+     * 包长度所在包头位置
+     * @var integer
+     */
+    public $package_length_offset = 8;
+    
+    /**
+     * 包体位置
+     * @var integer
+     */
+    public $package_body_offset = 16;
+    
+    /**
      * 获取服务名称
      * @return string
      */
