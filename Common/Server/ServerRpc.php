@@ -9,13 +9,8 @@ namespace Common\Server;
 
 use Common\Server\Event\EventVector;
 use Common\Server\Event\Event;
-use Common\Connection\Rpc\RpcConnection;
-use Common\Connection\Rpc\RpcResponse;
-use Common\Connection\Connection;
 use Common\Db\Mysql;
 use Common\Protocol\FrameReader;
-use Common\CallFactory\JsonRpcFactory;
-use Common\Protocol\JsonRpc\JsonRpc;
 use Common\Protocol\JsonRpc\JsonResponse;
 use Common\Protocol\JsonRpc\JsonRequest;
 use Common\Protocol\DataFrame;
@@ -117,10 +112,10 @@ class ServerRpc extends Server {
             'method' => $request->getMethod(),
             'params' => $request->getParams()
         ];
-        
         // 处理调用
         $result = [];
         try {
+            // 单例模式，每个 worker 进程中只实例化一次
             $class = ('\\Common\\Server\\Action\\'.ucfirst($action).'Action')::instance();
             $result = $class->execute($this, $params);
         } catch (\Throwable $t) {

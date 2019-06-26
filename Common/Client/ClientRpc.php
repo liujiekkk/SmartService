@@ -12,7 +12,6 @@ use Common\IO\StringBuffer;
 use Common\Config\ClientConfig;
 use Common\Log\Log;
 use Common\Protocol\JsonRpc\JsonRpc;
-use Common\CallFactory\JsonRpcFactory;
 use Common\Protocol\FrameWriter;
 use Common\Protocol\Buffer;
 use Common\Protocol\FrameReader;
@@ -117,57 +116,66 @@ class ClientRpc extends Client
      */
     public function request(string $class, string $method, array $params = [], $action='user'): array
     {
-        $flag = 0;
-        // 异步客户端，同步客户端处理方式不一样
-        if ( $this->isAsync ) {
-            // 初始化客户端事件
-            $events = $this->initEvent();
-            $this->loadEvent($events);
-            return $this->client->connect($this->host, $this->port, $this->timeout, $flag);
-        } else {
-            if ( !$this->client->connect($this->host, $this->port, $this->timeout, $flag) ) {
-                $this->log->error('Connect failed.');
-                return false;
-            } else {
-                self::$clients[$this->client->sock] = $this->client;
-            }
-            // 准备发送数据
-            $req = new JsonRequest($class, $method, $params);
-            $req->setAction($action);
-            $str = $req->encode();
-            
-            $length = $this->bufferWriter->getLength();
-            
-            $frame = new DataFrame(strlen($str), $str, "\n");
-            $this->frameWriter->appendFrame($frame, $this->bufferWriter);
-            $s = $this->bufferWriter->consume($this->bufferWriter->getLength());
-            if (!$this->client->send($s)) {
-                $this->log->error('Send failed.');
-            }
-            $data = $this->client->recv();
-            if ($data === false) {
-                // 如果设置了错误的 recv $size，会导致recv超时
-                $this->log->warning('receive data time out.');
-                $this->client->close();
-                return ['code' => 100000000, '服务器资源不可用', []];
-            } else if ($data === '') {
-                // 当收到错误的包头或包头中长度值超过package_max_length设置时，recv会返回空字符串
-                $this->log->warning('error data header or header size is above package_max_length.');
-                $this->client->close();
-                return ['code' => 100000000, '服务器资源不可用', []];
-            }
-            // 解析响应数据
-            $this->bufferReader->append($data);
-            $frame = $this->frameReader->consumeFrame($this->bufferReader);
-            $jsonRpc = JsonResponse::decode($frame->getBody());
-            
-            $ret = [
-                'code' => $jsonRpc->getCode(),
-                'message' => $jsonRpc->getMessage(),
-                'data' => $jsonRpc->getData()
+        if ( !$this->client->connect($this->host, $this->port, $this->timeout, 0) ) {
+            $this->log->error('Connect failed.');
+            return [
+                'code' => 100000000,
+                'message' => '创建链接失败',
+                'data' => []
             ];
-            return $ret;
+        } else {
+            self::$clients[$this->client->sock] = $this->client;
         }
+        // 准备发送数据
+        $req = new JsonRequest($class, $method, $params);
+        $req->setAction($action);
+        $str = $req->encode();
+        
+        $length = $this->bufferWriter->getLength();
+        
+        $frame = new DataFrame(strlen($str), $str, "\n");
+        $this->frameWriter->appendFrame($frame, $this->bufferWriter);
+        $s = $this->bufferWriter->consume($this->bufferWriter->getLength());
+        if (!$this->client->send($s)) {
+            $this->log->error('Send failed.');
+        }
+        $data = $this->client->recv();
+        if ($data === false) {
+            // 如果设置了错误的 recv $size，会导致recv超时
+            $this->log->warning('receive data time out.');
+            $this->client->close();
+            return ['code' => 100000000, '服务器资源不可用', []];
+        } else if ($data === '') {
+            // 当收到错误的包头或包头中长度值超过package_max_length设置时，recv会返回空字符串
+            $this->log->warning('error data header or header size is above package_max_length.');
+            $this->client->close();
+            return ['code' => 100000000, '服务器资源不可用', []];
+        }
+        // 解析响应数据
+        $this->bufferReader->append($data);
+        $frame = $this->frameReader->consumeFrame($this->bufferReader);
+        $jsonRpc = JsonResponse::decode($frame->getBody());
+        
+        $ret = [
+            'code' => $jsonRpc->getCode(),
+            'message' => $jsonRpc->getMessage(),
+            'data' => $jsonRpc->getData()
+        ];
+        return $ret;
+    }
+    
+    /**
+     * 发送请求不接受响应数据
+     * @param string $class
+     * @param string $method
+     * @param array $params
+     * @param string $action
+     */
+    public function requestAsync(string $class, string $method, array $params = [], $action='user'): void
+    {
+        // @todo 初始化客户端事件
+        $events = $this->initEvent();
+        $this->loadEvent($events);
     }
     
     /**
@@ -178,23 +186,12 @@ class ClientRpc extends Client
     public function onConnect($client, $data='') 
     {
         $this->log->info(__METHOD__.' Connect success.');
-        // 链接成功以后发送请求数据
-        $buffer = new StringBuffer();
-        // 写入buffer
-        $this->connection->writeBuffer($buffer);
-        $client->send($buffer->read());
     }
     
     public function onReceive($client, string $data='') 
     {
         if (!empty($data)) {
-            // 解析响应数据
-            $buffer = new StringBuffer();
-            $buffer->writeTo($data);
-            $this->connection->setResponse(new \Common\Connection\Rpc\RpcResponse());
-            $this->connection->readBuffer($buffer);
-            $client->close();
-            return;
+            // @todo 解析响应数据
         } else {
             $this->log->info(__METHOD__. ' No response');
         }
