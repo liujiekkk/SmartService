@@ -8,6 +8,7 @@
 namespace Common\Client;
 use Common\Server\Event\EventVector;
 use Common\Config\ClientConfig;
+use Common\Protocol\JsonRpc\JsonResponse;
 
 abstract class Client 
 {
@@ -18,7 +19,7 @@ abstract class Client
     protected $client;
     
     /**
-     * 当前进程所有客户端实例
+     * 当前进程所有需要并行请求客户端实例
      * @var Swoole\Client
      */
     protected static $clients;
@@ -39,7 +40,21 @@ abstract class Client
      * 发送请求并且获取返回数据
      * @return bool
      */
-    abstract public function request(string $class, string $method, array $params = []): array;
+    abstract public function request(string $class, string $method, array $params = []): JsonResponse;
+    
+    /**
+     * 发送请求不接受响应数据
+     * @param string $class 请求类
+     * @param string $method 请求方法
+     * @param array $params 请求参数
+     * @param callable $callback 回调函数
+     */
+    abstract public function requestAsync(string $class, string $method, array $params = []): JsonResponse;
+    
+    /**
+     * 并行执行当前所有异步请求
+     */
+    abstract public static function executeAsync(): void;
     
     /**
      * 连接到远程服务器

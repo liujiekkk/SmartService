@@ -8,7 +8,6 @@
 namespace Common\Client;
 use Common\Server\Event\EventVector;
 use Common\Server\Event\Event;
-use Common\IO\StringBuffer;
 use Common\Config\ClientConfig;
 use Common\Log\Log;
 use Common\Protocol\JsonRpc\JsonRpc;
@@ -68,6 +67,12 @@ class ClientRpc extends Client
     protected $frameWriter;
     
     /**
+     * 异步返回结果
+     * @var array
+     */
+    protected static $asyncResult;
+    
+    /**
      * 初始化 Client
      * @param ClientConfig $config 配置文件对象
      */
@@ -86,10 +91,6 @@ class ClientRpc extends Client
             'package_length_type' => $this->config->package_length_type,
             'package_length_offset' => $this->config->package_length_offset,
             'package_body_offset' => $this->config->package_body_offset,
-//             'open_eof_split' => true,
-//             'open_eof_check' => true,
-//             'open_length_check' => true,
-//             'package_eof' => "\r\n\r\n",
             'open_tcp_nodelay' => $this->config->open_tcp_nodelay,
         ]);
         $this->client = $client;
@@ -114,17 +115,11 @@ class ClientRpc extends Client
      * {@inheritDoc}
      * @see \Common\Client\Client::request()
      */
-    public function request(string $class, string $method, array $params = [], $action='user'): array
+    public function request(string $class, string $method, array $params = [], $action='user'): JsonResponse
     {
         if ( !$this->client->connect($this->host, $this->port, $this->timeout, 0) ) {
             $this->log->error('Connect failed.');
-            return [
-                'code' => 100000000,
-                'message' => '创建链接失败',
-                'data' => []
-            ];
-        } else {
-            self::$clients[$this->client->sock] = $this->client;
+            return new JsonResponse('', 100000000, '创建链接失败', []);
         }
         // 准备发送数据
         $req = new JsonRequest($class, $method, $params);
@@ -139,71 +134,85 @@ class ClientRpc extends Client
         if (!$this->client->send($s)) {
             $this->log->error('Send failed.');
         }
-        $data = $this->client->recv();
+        // 解析数据
+        return $this->parseRecvData($this);
+    }
+    
+    // 处理接受到的数据
+    protected static function parseRecvData(ClientRpc $client): JsonResponse 
+    {
+        $data = $client->client->recv();
         if ($data === false) {
-            // 如果设置了错误的 recv $size，会导致recv超时
-            $this->log->warning('receive data time out.');
-            $this->client->close();
-            return ['code' => 100000000, '服务器资源不可用', []];
+            $client->client->close();
+            return new JsonResponse('', 100000000, '服务器资源不可用', []);
         } else if ($data === '') {
             // 当收到错误的包头或包头中长度值超过package_max_length设置时，recv会返回空字符串
-            $this->log->warning('error data header or header size is above package_max_length.');
-            $this->client->close();
-            return ['code' => 100000000, '服务器资源不可用', []];
+            $client->client->close();
+            return new JsonResponse('', 100000000, '服务器资源不可用', []);
         }
         // 解析响应数据
-        $this->bufferReader->append($data);
-        $frame = $this->frameReader->consumeFrame($this->bufferReader);
-        $jsonRpc = JsonResponse::decode($frame->getBody());
-        
-        $ret = [
-            'code' => $jsonRpc->getCode(),
-            'message' => $jsonRpc->getMessage(),
-            'data' => $jsonRpc->getData()
-        ];
-        return $ret;
+        $client->bufferReader->append($data);
+        $frame = $client->frameReader->consumeFrame($client->bufferReader);
+        return JsonResponse::decode($frame->getBody());
     }
     
     /**
      * 发送请求不接受响应数据
-     * @param string $class
-     * @param string $method
-     * @param array $params
-     * @param string $action
+     * @param string $class 请求类
+     * @param string $method 请求方法
+     * @param array $params 请求参数
+     * @param callable $callback 回调函数
      */
-    public function requestAsync(string $class, string $method, array $params = [], $action='user'): void
+    public function requestAsync(string $class, string $method, array $params = []): JsonResponse
     {
-        // @todo 初始化客户端事件
-        $events = $this->initEvent();
-        $this->loadEvent($events);
+        if ( !$this->client->connect($this->host, $this->port, $this->timeout, 0) ) {
+            
+        } else {
+            self::$clients[$this->client->sock] = $this;
+            self::$asyncResult[$this->client->sock] = new JsonResponse('', '', '', []);
+        }
+        // 准备发送数据
+        $req = new JsonRequest($class, $method, $params);
+        $req->setAction('user');
+        $str = $req->encode();
+        
+        $length = $this->bufferWriter->getLength();
+        
+        $frame = new DataFrame(strlen($str), $str, "\n");
+        $this->frameWriter->appendFrame($frame, $this->bufferWriter);
+        $s = $this->bufferWriter->consume($this->bufferWriter->getLength());
+        if (!$this->client->send($s)) {
+            $this->log->error('Send failed.');
+        }
+        return self::$asyncResult[$this->client->sock];
     }
     
     /**
-     * 链接建立成功相应函数
-     * @param Swoole\Client $client
-     * @param string $data
+     * 执行当前所有异步请求
      */
-    public function onConnect($client, $data='') 
+    public static function executeAsync(): void 
     {
-        $this->log->info(__METHOD__.' Connect success.');
-    }
-    
-    public function onReceive($client, string $data='') 
-    {
-        if (!empty($data)) {
-            // @todo 解析响应数据
-        } else {
-            $this->log->info(__METHOD__. ' No response');
+        while (!empty(self::$clients))
+        {
+            $write = $error = array();
+            $read = [];
+            foreach (self::$clients as $client) {
+                $read[] = $client->client;
+            }
+            $n = swoole_client_select($read, $write, $error, 0.6);
+            if ($n > 0)
+            {
+                foreach (self::$clients as $c)
+                {
+                    $jsonRpc = self::parseRecvData($c);
+                    $d = self::$asyncResult[$c->client->sock];
+                    $d->setId($jsonRpc->getId());
+                    $d->setCode($jsonRpc->getCode());
+                    $d->setMessage($jsonRpc->getMessage());
+                    $d->setData($jsonRpc->getData());
+                    unset(self::$clients[$c->client->sock]);
+                }
+            }
         }
-    }
-    
-    public function onClose($client) 
-    {
-        $this->log->info(__METHOD__. ' Client close.');
-    }
-    
-    public function onError($client) 
-    {
-        exit("error\n");
     }
 }
