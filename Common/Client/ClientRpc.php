@@ -166,7 +166,7 @@ class ClientRpc extends Client
     public function requestAsync(string $class, string $method, array $params = []): JsonResponse
     {
         if ( !$this->client->connect($this->host, $this->port, $this->timeout, 0) ) {
-            
+            throw new \Exception('client connect timeout.');  
         } else {
             self::$clients[$this->client->sock] = $this;
             self::$asyncResult[$this->client->sock] = new JsonResponse('', '', '', []);
