@@ -7,7 +7,7 @@
  */
 namespace Conf\Server;
 
-use Common\Config\ServerConfig;
+use Server\Config\ServerConfig;
 
 class Example extends ServerConfig
 {

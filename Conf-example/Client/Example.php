@@ -7,7 +7,7 @@
  */
 namespace Conf\Client;
 
-use Common\Config\ClientConfig;
+use Client\Config\ClientConfig;
 
 class Example extends ClientConfig
 {
