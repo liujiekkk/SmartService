@@ -99,7 +99,6 @@ class ClientRpc extends AbstractClient
     public function request(string $class, string $method, array $params = [], $action='user'): JsonResponse
     {
         if ( !$this->client->connect($this->host, $this->port, $this->timeout, 0) ) {
-            $this->log->error('Connect failed.');
             return new JsonResponse('', 100000000, '创建链接失败', []);
         }
         // 准备发送数据
@@ -113,7 +112,7 @@ class ClientRpc extends AbstractClient
         $this->frameWriter->appendFrame($frame, $this->bufferWriter);
         $s = $this->bufferWriter->consume($this->bufferWriter->getLength());
         if (!$this->client->send($s)) {
-            $this->log->error('Send failed.');
+            throw new \Exception('Send Error.');
         }
         // 解析数据
         return $this->parseRecvData($this);
@@ -163,7 +162,7 @@ class ClientRpc extends AbstractClient
         $this->frameWriter->appendFrame($frame, $this->bufferWriter);
         $s = $this->bufferWriter->consume($this->bufferWriter->getLength());
         if (!$this->client->send($s)) {
-            $this->log->error('Send failed.');
+            throw new \Exception('Send Error.');
         }
         return self::$asyncResult[$this->client->sock];
     }
