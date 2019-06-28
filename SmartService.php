@@ -40,12 +40,15 @@ class SmartService
      * @param string $serverName 服务名称
      */
     protected function fork(string $signal, string $serverName) {
+        set_error_handler([$this, 'errorHandler']);
         $process = new SwooleProcess(function ( $worker ) use ($signal, $serverName){
+            
             // 启动单个 Server 进程
-            $phpBin = '/usr/local/php7/bin/php';
+//             $phpBin = '/data/soft/php/bin/php';
+            $phpBin = '/usr/local/bin/php';
             $params = [__DIR__.'/Server.php', '-s', $signal, '-n', $serverName];
             $worker->exec($phpBin, $params);
-        }, true, true);
+        }, false, false);
         $pid = $process->start();
         usleep(100);
         // 回收结束运行的子进程
@@ -57,6 +60,7 @@ class SmartService
             $str = $this->shell->colorFont("Server {$serverName} {$signal} success.", Shell::COLOR_GREEN);
             $this->shell->println($str);
         }
+        restore_error_handler();
     }
     
     /**
@@ -118,6 +122,12 @@ class SmartService
         } else {
             $this->forks('restart');
         }
+    }
+    
+    public function errorHandler($errno, $errstr, $errfile, $errline) 
+    {
+        echo "Custom error: [$errno] $errstr\n";
+        echo "Error on line $errline in $errfile\n";
     }
 }
 include_once 'Autoload.php';

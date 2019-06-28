@@ -5,11 +5,10 @@
  * @date 2018年2月13日
  * @time 下午3:16:35
  */
-namespace Common\Server;
+namespace Server;
 
-use Common\Server\Event\EventVector;
-use Common\Connection\Connection;
-use Common\Config\ServerConfig;
+use Server\Event\EventVector;
+use Server\Config\ServerConfig;
 use Common\Log\Log;
 use Library\Format\Path;
 use Common\Protocol\Buffer;

@@ -5,12 +5,11 @@
  * @date 2018年2月24日
  * @time 下午5:16:21
  */
-namespace Common\Client;
-use Common\Server\Event\EventVector;
-use Common\Config\ClientConfig;
+namespace Client;
+use Client\Config\ClientConfig;
 use Common\Protocol\JsonRpc\JsonResponse;
 
-abstract class Client 
+abstract class AbstractClient 
 {
     /**
      * 当前客户端对象实例
@@ -29,12 +28,6 @@ abstract class Client
      * @param ClientConfig $config 配置文件项目
      */
     abstract public function __construct(ClientConfig $config);
-    
-    /**
-     * 初始化服务事件
-     * @return EventVector
-     */
-    abstract protected function initEvent(): EventVector;
     
     /**
      * 发送请求并且获取返回数据
@@ -75,7 +68,7 @@ abstract class Client
      * @param string $event 事件类型，(connect/error/receive/close)
      * @param callable $callback 回调函数(函数名字符串、匿名函数、类静态方法、对象方法)
      */
-    public function on(string $event, callable $callback) :Client 
+    public function on(string $event, callable $callback) :self
     {
         $this->client->on($event, $callback);
         return $this;
@@ -163,17 +156,6 @@ abstract class Client
     protected function recv(int $size = 65535, int $flags = 0) 
     {
         return $this->client->recv($size, $flags);
-    }
-    
-    /**
-     * 加载事件容器中的事件
-     * @param EventVector $events 事件容器
-     */
-    protected function loadEvent(EventVector $events)
-    {
-        foreach ($events as $event) {
-            $this->client->on($event->getEventName(), $event->getCallback());
-        }
     }
     
     /**

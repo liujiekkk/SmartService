@@ -5,9 +5,11 @@
  * @date 2018年5月9日
  * @time 上午10:14:12
  */
-namespace Common\Server\Manager;
-use Common\Config\ServerConfig;
-use Common\Config\ClientConfig;
+namespace Manager;
+use Server\ServerRpc;
+use Client\ClientRpc;
+use Server\Config\ServerConfig;
+use Client\Config\ClientConfig;
 
 class RpcManager extends Manager
 {
@@ -17,7 +19,7 @@ class RpcManager extends Manager
     public function start(): bool
     {
         // 实例化服务，并且运行
-        return \Common\Server\ServerRpc::instance($this->serverConfig)->run();
+        return ServerRpc::instance($this->serverConfig)->run();
     }
     
     /**
@@ -25,7 +27,7 @@ class RpcManager extends Manager
      */
     public function stop(): bool
     {
-        $client = new \Common\Client\ClientRpc($this->clientConfig);
+        $client = new ClientRpc($this->clientConfig);
         // 系统命令
         $data = $client->request('', 'shutdown', [], 'system');
         if ($data->getCode()) {
@@ -39,7 +41,7 @@ class RpcManager extends Manager
      */
     public function reload(): bool
     {
-        $client = new \Common\Client\ClientRpc($this->clientConfig);
+        $client = new ClientRpc($this->clientConfig);
         $data = $client->request('', 'reload', [], 'system');
         if ($data->getCode()) {
             return false;

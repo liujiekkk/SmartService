@@ -5,7 +5,7 @@
  * @date 2018年3月5日
  * @time 下午6:54:04
  */
-namespace Common\Server\Event;
+namespace Server\Event;
 
 class Event
 {

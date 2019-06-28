@@ -5,10 +5,10 @@
  * @date 2018年3月9日
  * @time 上午11:04:51
  */
-namespace Common\Server\Action;
+namespace Server\Action;
 
 use Library\Singleton;
-use Common\Server\Server;
+use Server\Server;
 
 abstract class Action
 {

@@ -5,11 +5,11 @@
  * @date 2018年2月13日
  * @time 下午4:11:42
  */
-namespace Common\Server;
+namespace Server;
 
-use Common\Server\Event\EventVector;
-use Common\Server\Event\Event;
-use Common\Db\Mysql;
+use Server\Event\EventVector;
+use Server\Event\Event;
+use Db\Mysql;
 use Common\Protocol\FrameReader;
 use Common\Protocol\JsonRpc\JsonResponse;
 use Common\Protocol\JsonRpc\JsonRequest;
@@ -116,7 +116,7 @@ class ServerRpc extends Server {
         $result = [];
         try {
             // 单例模式，每个 worker 进程中只实例化一次
-            $class = ('\\Common\\Server\\Action\\'.ucfirst($action).'Action')::instance();
+            $class = ('\\Server\\Action\\'.ucfirst($action).'Action')::instance();
             $result = $class->execute($this, $params);
         } catch (\Throwable $t) {
             // 写入错误日志

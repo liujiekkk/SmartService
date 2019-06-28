@@ -5,7 +5,7 @@
  * @date 2018年5月11日
  * @time 下午2:40:57
  */
-namespace Common\Db;
+namespace Db;
 
 use PDO,PDOException,PDOStatement;
 

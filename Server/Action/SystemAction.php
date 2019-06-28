@@ -6,9 +6,9 @@
  * @date 2018年3月18日
  * @time 下午2:00:34
  */
-namespace Common\Server\Action;
+namespace Server\Action;
 
-use Common\Server\Server;
+use Server\Server;
 class SystemAction extends Action
 {
     

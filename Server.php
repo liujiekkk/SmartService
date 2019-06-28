@@ -5,9 +5,9 @@
  * @date 2018年2月13日
  * @time 下午3:05:32
  */
-use Common\Config\ServerConfig;
-use Common\Config\ClientConfig;
-use Common\Server\Manager\Manager;
+use Server\Config\ServerConfig;
+use Client\Config\ClientConfig;
+use Manager\Manager;
 
 include_once 'Autoload.php';
 Autoload::instance()

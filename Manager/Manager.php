@@ -5,10 +5,10 @@
  * @date 2018年5月4日
  * @time 上午9:29:29
  */
-namespace Common\Server\Manager;
+namespace Manager;
 
-use Common\Config\ServerConfig;
-use Common\Config\ClientConfig;
+use Server\Config\ServerConfig;
+use Client\Config\ClientConfig;
 
 abstract class Manager
 {

@@ -5,9 +5,9 @@
  * @date 2018年3月18日
  * @time 下午4:47:58
  */
-namespace Common\Server\Action;
+namespace Server\Action;
 
-use Common\Server\Server;
+use Server\Server;
 
 class UserAction extends Action
 {

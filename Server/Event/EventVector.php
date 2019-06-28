@@ -5,7 +5,7 @@
  * @date 2018年3月5日
  * @time 下午6:58:16
  */
-namespace Common\Server\Event;
+namespace Server\Event;
 
 class EventVector implements \IteratorAggregate
 {

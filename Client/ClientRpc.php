@@ -5,11 +5,9 @@
  * @date 2018年2月24日
  * @time 下午5:18:44
  */
-namespace Common\Client;
-use Common\Server\Event\EventVector;
-use Common\Server\Event\Event;
-use Common\Config\ClientConfig;
-use Common\Log\Log;
+namespace Client;
+use Client\AbstractClient;
+use Client\Config\ClientConfig;
 use Common\Protocol\JsonRpc\JsonRpc;
 use Common\Protocol\FrameWriter;
 use Common\Protocol\Buffer;
@@ -19,7 +17,7 @@ use Common\Protocol\DataFrame;
 use Common\Protocol\JsonRpc\JsonResponse;
 
 
-class ClientRpc extends Client 
+class ClientRpc extends AbstractClient
 {
     
     /**
@@ -27,12 +25,6 @@ class ClientRpc extends Client
      * @var bool
      */
     protected $isAsync;
-    
-    /**
-     * 日志对象实例
-     * @var Log
-     */
-    protected $log;
     
     protected $host;
     
@@ -83,7 +75,6 @@ class ClientRpc extends Client
         $this->host = $config->host;
         $this->port = $config->port;
         $this->timeout = $config->timeout;
-        $this->log = new Log($config->log, $config->debug_mode);
         $client = new \swoole_client($config->sock_type, $config->async, $config->key);
         $client->set([
             // 自定义协议包
@@ -98,16 +89,6 @@ class ClientRpc extends Client
         $this->bufferWriter = new Buffer();
         $this->frameReader = new FrameReader();
         $this->frameWriter = new FrameWriter();
-    }
-    
-    public function initEvent() :EventVector
-    {
-        $events = new EventVector();
-        $events->addEvent(new Event('connect', [$this, 'onConnect']));
-        $events->addEvent(new Event('receive', [$this, 'onReceive']));
-        $events->addEvent(new Event('close', [$this, 'onClose']));
-        $events->addEvent(new Event('error', [$this, 'onError']));
-        return $events;
     }
     
     /**
