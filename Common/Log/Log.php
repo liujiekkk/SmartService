@@ -37,7 +37,7 @@ class Log implements ILog
      */
     public function __construct(string $filePath='', bool $debug=true) {
         $this->debug = $debug;
-        $this->filePath = empty($filePath) ? '/tmp/smartservice.log' : $filePath;
+        $this->filePath = empty($filePath) ? '/tmp/smart-service.log' : $filePath;
         $this->shell = new Shell();
     }
 

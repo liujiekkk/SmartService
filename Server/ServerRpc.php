@@ -89,9 +89,11 @@ class ServerRpc extends Server {
         $frame = $this->frameReader->consumeFrame($this->bufferReader);
         // 重新实例化请求对象
         $request = JsonRequest::decode($frame->getBody());
+        
         // 请求分发
         $response = Dispatcher::instance()
             ->setServer($this)
+            ->setLog($this->log)
             ->dispatch($request);
         
         $str = $response->encode();

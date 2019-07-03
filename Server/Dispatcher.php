@@ -11,6 +11,7 @@ use Common\Protocol\AbstractRequest;
 use Common\Protocol\AbstractResponse;
 use Library\Singleton;
 use Common\Protocol\JsonRpc\JsonResponse;
+use Common\Log\Log;
 
 final class Dispatcher
 {
@@ -24,9 +25,21 @@ final class Dispatcher
      */
     protected $server;
     
+    /**
+     * 日志模块实例
+     * @var Log
+     */
+    protected $logger;
+    
     public function setServer(Server $server): self 
     {
         $this->server = $server;
+        return $this;
+    }
+    
+    public function setLog(Log $logger): self 
+    {
+        $this->logger = $logger;
         return $this;
     }
     
@@ -45,23 +58,20 @@ final class Dispatcher
             // 单例模式，每个 worker 进程中只实例化一次
             $class = ('\\Server\\Action\\'.ucfirst($action).'Action')::instance();
             $result = $class->execute($this->server, $params);
-        } catch (\Throwable $t) {
-            // 格式化日志输出
-            $msg = $this->server->log->format($t);
-            // 记录日志
-            $this->server->log->error($msg);
-            // 响应客户端
             return JsonResponse::instance()
-                ->getId($request->getId())
+                ->setId($request->getId())
+                ->setCode(0)
+                ->setMessage('成功')
+                ->setData($result);
+        } catch (\Throwable $t) {
+            $msg = $this->logger->format($t);
+            $this->logger->error($msg);
+            return JsonResponse::instance()
+                ->setId($request->getId())
                 ->setCode(100000000)
-                ->setMessage('服务器异常')
+                ->setMessage($t->getMessage())
                 ->setData([]);
         }
-        return JsonResponse::instance()
-            ->setId($request->getId())
-            ->setCode(0)
-            ->setMessage('成功')
-            ->setData($result);
     }
 }
 
