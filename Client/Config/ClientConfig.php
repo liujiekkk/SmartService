@@ -104,6 +104,5 @@ abstract class ClientConfig
             return $classPath;
         }
     }
-    
 }
 

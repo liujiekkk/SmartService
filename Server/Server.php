@@ -103,26 +103,15 @@ abstract class Server {
                 'package_length_type' => $config->package_length_type,
                 'package_length_offset' => $config->package_length_offset,
                 'package_body_offset' => $config->package_body_offset,
-//                 'open_length_check' => true,
-//                 'open_eof_check' => true,
-//                 'open_eof_split' => true,
-//                 'package_eof' => "\r\n\r\n"
             ]);
             // 初始化日志模块
             self::$instance->log = new Log($config->log, $config->debug_mode);
-            // 初始化数据库
-            self::$instance->initDb();
             // 初始化业务代码
             $codePath = $config->path ? $config->path : Path::format(__DIR__. '/../../../');
             \Autoload::instance()->setIncludePath($codePath);
         }
         return self::$instance;
     }
-    
-    /**
-     * 初始化数据库
-     */
-    abstract protected function initDb();
     
     /**
      * 初始化默认事件

@@ -9,26 +9,11 @@ namespace Server;
 
 use Server\Event\EventVector;
 use Server\Event\Event;
-use Db\Mysql;
 use Common\Protocol\FrameReader;
-use Common\Protocol\JsonRpc\JsonResponse;
 use Common\Protocol\JsonRpc\JsonRequest;
 use Common\Protocol\DataFrame;
 
 class ServerRpc extends Server {
-    
-    /**
-     * 初始化各种数据库单例
-     * {@inheritDoc}
-     * @see \Common\Server\Server::initDb()
-     */
-    protected function initDb() 
-    {
-        if ( $this->config->mysql ) {
-            // 初始化 mysql
-            $db = Mysql::instance($this->config->mysql);
-        }
-    }
     
     /**
      * 初始化默认监听事件
