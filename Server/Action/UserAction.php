@@ -16,10 +16,10 @@ class UserAction extends Action
     {
         // 业务类位置
         $className = '\\'.ucfirst($params['class']);
-        $classObj = new $className();
         $reflectionClass = new \ReflectionClass($className);
+        $instance = $reflectionClass->newInstanceWithoutConstructor();
         $reflectionMethod = $reflectionClass->getMethod($params['method']);
-        $data = $reflectionMethod->invokeArgs($classObj, $params['params']);
+        $data = $reflectionMethod->invokeArgs($instance, $params['params']);
         return $data;
     }
 }

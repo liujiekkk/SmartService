@@ -24,7 +24,7 @@ class SClient {
     {
         $class = "\\Conf\\Client\\".ucfirst($serviceName);
         $this->config = new $class();
-        $this->className = $className;
+        $this->className = ucfirst($serviceName). "\\Api\\". $className;
         return $this;
     }
     
