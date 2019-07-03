@@ -18,7 +18,8 @@ trait Singleton {
     /**
      * 获取对象实例
      */
-    public static function instance() {
+    public static function instance(): self
+    {
         $className = get_called_class();
         if (!isset(self::$classVector[$className])) {
             self::$classVector[$className] = new $className();

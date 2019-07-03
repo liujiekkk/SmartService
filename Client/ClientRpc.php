@@ -12,10 +12,10 @@ use Common\Protocol\JsonRpc\JsonRpc;
 use Common\Protocol\FrameWriter;
 use Common\Protocol\Buffer;
 use Common\Protocol\FrameReader;
-use Common\Protocol\JsonRpc\JsonRequest;
 use Common\Protocol\DataFrame;
+use Common\Protocol\AbstractResponse;
+use Common\Protocol\JsonRpc\JsonRequest;
 use Common\Protocol\JsonRpc\JsonResponse;
-
 
 class ClientRpc extends AbstractClient
 {
@@ -96,13 +96,17 @@ class ClientRpc extends AbstractClient
      * {@inheritDoc}
      * @see \Common\Client\Client::request()
      */
-    public function request(string $class, string $method, array $params = [], $action='user'): JsonResponse
+    public function request(string $class, string $method, array $params = [], $action='user'): AbstractResponse
     {
         if ( !$this->client->connect($this->host, $this->port, $this->timeout, 0) ) {
             return new JsonResponse('', 100000000, '创建链接失败', []);
         }
         // 准备发送数据
-        $req = new JsonRequest($class, $method, $params);
+        $req = JsonRequest::instance()
+            ->setId(uuid_create())
+            ->setClass($class)
+            ->setMethod($method)
+            ->setParams($params);
         $req->setAction($action);
         $str = $req->encode();
         
@@ -119,21 +123,29 @@ class ClientRpc extends AbstractClient
     }
     
     // 处理接受到的数据
-    protected static function parseRecvData(ClientRpc $client): JsonResponse 
+    protected static function parseRecvData(ClientRpc $client): AbstractResponse 
     {
+        $response = JsonResponse::instance();
         $data = $client->client->recv();
         if ($data === false) {
             $client->client->close();
-            return new JsonResponse('', 100000000, '服务器资源不可用', []);
+            $response->setCode(100000000)
+                ->setMessage('服务器资源不可用')
+                ->setData([]);
+            return $response;
         } else if ($data === '') {
             // 当收到错误的包头或包头中长度值超过package_max_length设置时，recv会返回空字符串
             $client->client->close();
-            return new JsonResponse('', 100000000, '服务器资源不可用', []);
+            $response->setCode(100000000)
+                ->setMessage('服务器资源不可用')
+                ->setData([]);
+            return $response;
         }
         // 解析响应数据
         $client->bufferReader->append($data);
         $frame = $client->frameReader->consumeFrame($client->bufferReader);
-        return JsonResponse::decode($frame->getBody());
+        $response->decode($frame->getBody());
+        return $response;
     }
     
     /**
@@ -143,13 +155,13 @@ class ClientRpc extends AbstractClient
      * @param array $params 请求参数
      * @param callable $callback 回调函数
      */
-    public function requestAsync(string $class, string $method, array $params = []): JsonResponse
+    public function requestAsync(string $class, string $method, array $params = []): AbstractResponse
     {
         if ( !$this->client->connect($this->host, $this->port, $this->timeout, 0) ) {
             throw new \Exception('client connect timeout.');  
         } else {
             self::$clients[$this->client->sock] = $this;
-            self::$asyncResult[$this->client->sock] = new JsonResponse('', '', '', []);
+            self::$asyncResult[$this->client->sock] = JsonResponse::instance();
         }
         // 准备发送数据
         $req = new JsonRequest($class, $method, $params);

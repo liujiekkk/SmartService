@@ -7,7 +7,7 @@
  */
 namespace Client;
 use Client\Config\ClientConfig;
-use Common\Protocol\JsonRpc\JsonResponse;
+use Common\Protocol\AbstractResponse;
 
 abstract class AbstractClient 
 {
@@ -33,7 +33,7 @@ abstract class AbstractClient
      * 发送请求并且获取返回数据
      * @return bool
      */
-    abstract public function request(string $class, string $method, array $params = []): JsonResponse;
+    abstract public function request(string $class, string $method, array $params = []): AbstractResponse;
     
     /**
      * 发送请求不接受响应数据
@@ -42,7 +42,7 @@ abstract class AbstractClient
      * @param array $params 请求参数
      * @param callable $callback 回调函数
      */
-    abstract public function requestAsync(string $class, string $method, array $params = []): JsonResponse;
+    abstract public function requestAsync(string $class, string $method, array $params = []): AbstractResponse;
     
     /**
      * 并行执行当前所有异步请求

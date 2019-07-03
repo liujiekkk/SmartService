@@ -102,39 +102,13 @@ class ServerRpc extends Server {
         // 解析协议包
         $this->bufferReader->append($data);
         $frame = $this->frameReader->consumeFrame($this->bufferReader);
-        
+        // 重新实例化请求对象
         $request = JsonRequest::decode($frame->getBody());
+        // 请求分发
+        $response = Dispatcher::instance()
+            ->setServer($this)
+            ->dispatch($request);
         
-        // 调用相应的系统方法还是用户业务逻辑
-        $action = $request->getAction();
-        $params = [
-            'class' => $request->getClass(),
-            'method' => $request->getMethod(),
-            'params' => $request->getParams()
-        ];
-        // 处理调用
-        $result = [];
-        try {
-            // 单例模式，每个 worker 进程中只实例化一次
-            $class = ('\\Server\\Action\\'.ucfirst($action).'Action')::instance();
-            $result = $class->execute($this, $params);
-        } catch (\Throwable $t) {
-            // 写入错误日志
-            $errMsg = $this->log->format($t);
-            $this->log->error($errMsg);
-            // 响应客户端
-            $response = new JsonResponse($request->getId(), 100000000, '服务器异常', []);
-            $str = $response->encode();
-            $frame = new DataFrame(strlen($str), $str, "\n");
-            $this->frameWriter->appendFrame($frame, $this->bufferWriter);
-            $s = $this->bufferWriter->consume($this->bufferWriter->getLength());
-            $serv->send($fd, $s);
-            // 关闭客户端链接
-            $this->close($fd);
-            return;
-        }
-        // 将处理结果返回给客户端
-        $response = new JsonResponse($request->getId(), 0, '成功', $result);
         $str = $response->encode();
         $frame = new DataFrame(strlen($str), $str, "\n");
         $this->frameWriter->appendFrame($frame, $this->bufferWriter);
