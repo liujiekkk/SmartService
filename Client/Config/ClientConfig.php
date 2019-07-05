@@ -16,12 +16,6 @@ abstract class ClientConfig
     public $debug_mode = true;
     
     /**
-     * 服务端日志存储路径
-     * @var string
-     */
-    public $log  = '/tmp/smart-server.log';
-    
-    /**
      * 参数用来指定监听的ip地址，如127.0.0.1，或者外网地址，或者0.0.0.0监听全部地址
      * @var string
      */
