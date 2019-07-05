@@ -30,7 +30,7 @@ class RpcManager extends Manager
         $client = new ClientRpc($this->clientConfig);
         // 系统命令
         $data = $client->request('', 'shutdown', [], 'system');
-        if ($data->getCode()) {
+        if ($data['code']) {
             return false;
         }
         return true;
@@ -43,7 +43,7 @@ class RpcManager extends Manager
     {
         $client = new ClientRpc($this->clientConfig);
         $data = $client->request('', 'reload', [], 'system');
-        if ($data->getCode()) {
+        if ($data['code']) {
             return false;
         }
         return true;

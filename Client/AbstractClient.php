@@ -7,7 +7,6 @@
  */
 namespace Client;
 use Client\Config\ClientConfig;
-use Common\Protocol\AbstractResponse;
 
 abstract class AbstractClient 
 {
@@ -24,6 +23,12 @@ abstract class AbstractClient
     protected static $clients;
     
     /**
+     * 同步并行请求所有请求id
+     * @var array
+     */
+    protected static $requestIdArr;
+    
+    /**
      * 创建一个客户端实例
      * @param ClientConfig $config 配置文件项目
      */
@@ -31,18 +36,21 @@ abstract class AbstractClient
     
     /**
      * 发送请求并且获取返回数据
+     * @param string $class 请求类
+     * @param string $method 请求方法
+     * @param array $params 请求参数
      * @return bool
      */
-    abstract public function request(string $class, string $method, array $params = []): AbstractResponse;
+    abstract public function request(string $class, string $method, array $params = []): array;
     
     /**
      * 发送请求不接受响应数据
      * @param string $class 请求类
      * @param string $method 请求方法
      * @param array $params 请求参数
-     * @param callable $callback 回调函数
+     * @return array
      */
-    abstract public function requestAsync(string $class, string $method, array $params = []): AbstractResponse;
+    abstract public function &requestAsync(string $class, string $method, array $params = []): array;
     
     /**
      * 并行执行当前所有异步请求

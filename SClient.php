@@ -31,15 +31,8 @@ class SClient {
     public function __call(string $method, array $args): array
     {
         $client = new ClientRpc($this->config);
-        $jsonRpc = $client->request($this->className, $method, $args, 'user');
-        $ret = [
-            'code' => $jsonRpc->getCode(),
-            'message' => $jsonRpc->getMessage(),
-            'data' => $jsonRpc->getData()
-        ];
-        return $ret;
+        return $client->request($this->className, $method, $args, 'user');
     }
-    
 }
 
 
